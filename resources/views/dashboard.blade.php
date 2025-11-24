@@ -2,8 +2,7 @@
 
 @section('content')
 <div class="container-fluid">
-    <h3 class="mb-4">❤️ Dashboard</h3>
-
+    <h3 class="mb-4">❤️ Dashboard Klinik</h3>
     <div class="row g-4">
         <div class="col-md-4">
             <div class="card shadow-sm p-4 text-center border-0 rounded-4" style="background-color: #0bf132f6; color:white;">
