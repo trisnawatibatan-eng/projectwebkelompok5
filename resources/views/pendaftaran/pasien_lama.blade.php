@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h3>📋 Pendaftaran - Pasien Lama</h3>
+    <h3>📋 Pendaftaran - Pasien Lamaaa</h3>
 
     {{-- Form Pencarian --}}
     <form action="{{ route('pasien.cari') }}" method="GET" class="d-flex gap-2 mt-3">
