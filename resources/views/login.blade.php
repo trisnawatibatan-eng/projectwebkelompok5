@@ -47,7 +47,7 @@
          alt="" 
          width="80" 
          class="rounded-circle mb-3">
-    <h3></i>❤️Login puskesmas</h3>
+    <h3></i>❤️Login Klinik</h3>
 
     @if(session('error'))
         <div class="alert alert-danger py-2">{{ session('error') }}</div>
