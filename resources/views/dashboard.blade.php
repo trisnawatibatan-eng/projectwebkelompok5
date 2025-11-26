@@ -29,7 +29,7 @@
     </div>
 
     <div class="card shadow-sm mt-5 border-0 rounded-4 p-4 text-center">
-        <h5 class="mb-3">🧮 Statistik Jenis Kelamin</h5>
+        <h5 class="mb-3">🧮 Jenis Kelamin</h5>
         <div style="max-width: 400px; margin: 0 auto;">  <!-- Ukuran grafik dibatasi -->
             <canvas id="genderChart" width="300" height="300"></canvas>
         </div>
