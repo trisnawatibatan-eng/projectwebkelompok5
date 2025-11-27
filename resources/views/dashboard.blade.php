@@ -7,7 +7,7 @@
     <div class="row g-4">
         <div class="col-md-4">
             <div class="card shadow-sm p-4 text-center border-0 rounded-4" style="background-color: #0bf132f6; color:white;">
-                <h5>Total Pasien</h5>
+                <h5>Total Pasien </h5>
                 <h2>{{ $total }}</h2>
                 <i class="bi bi-people-fill fs-3"></i>
             </div>
@@ -57,7 +57,7 @@
                 legend: { position: 'bottom' },
                 title: {
                     display: true,
-                    text: 'Perbandingan Jenis Kelamin Pasien',
+                    text: 'Perbandingan Jenis Kelamin Pada Pasien',
                     font: { size: 14 }
                 }
             }
