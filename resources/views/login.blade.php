@@ -71,7 +71,7 @@
     </form>
 
     <p class="mt-4 text-muted" style="font-size: 14px;">
-       welcome to puskesmas pratama
+       welcome to puskesmas
     </p>
 </div>
 
