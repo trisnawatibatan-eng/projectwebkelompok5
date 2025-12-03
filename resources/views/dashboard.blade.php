@@ -27,7 +27,7 @@
                     <div>
                         <h5 class="mb-1 fw-semibold">👋 Halo, Admin!</h5>
                         <p class="mb-0 small text-secondary">
-                            Selamat datang di Aplikasi Rekam Medis Elektronik <strong>Klinik Pratama</strong>.
+                            Selamat datang di Sistem Rekam Medis Elektronik Klinik Pratama<strong>Klinik Pratama</strong>.
                         </p>
                     </div>
                     <img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" width="55" alt="Admin Icon">
