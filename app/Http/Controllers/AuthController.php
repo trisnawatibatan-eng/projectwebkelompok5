@@ -19,7 +19,7 @@ class AuthController extends Controller
         $password = trim($request->password);
 
         // Login sederhana tanpa database
-        if ($username === 'andika' && $password === '12345') {
+        if ($username === 'admin' && $password === '12345') {
             session(['user' => 'andika']);
             return redirect()->route('dashboard');
         }

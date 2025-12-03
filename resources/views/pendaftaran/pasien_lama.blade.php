@@ -1,11 +1,8 @@
 @extends('layout')
 
 @section('content')
-<div class="container mt-5">
-
-    <div class="card shadow-lg border-0 rounded-4 p-4">
-        <h3 class="mb-3 text-center fw-bold">📋 Pendaftaran Pasien Lama</h3>
-        <p class="text-center text-muted">Silakan masukkan No Rekam Medis (RM) untuk mencari data pasien.</p>
+<div class="container mt-4">
+    <h3>📋 Pendaftaran - Pasien Lamaaa</h3>
 
         {{-- Form Pencarian --}}
         <form action="{{ route('pasien.cari') }}" method="GET" class="d-flex gap-2 justify-content-center mt-4">
