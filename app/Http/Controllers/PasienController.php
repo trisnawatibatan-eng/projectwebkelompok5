@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pasien;
+// PENTING: Hapus komentar jika Model Antrian sudah dibuat:
+// use App\Models\Antrian; 
 
 class PasienController extends Controller
 {
     /**
-     * 🔹 Tampilkan semua pasien (Data Master)
+     * Tampilkan semua pasien (Data Master)
      */
     public function index()
     {
@@ -21,7 +23,7 @@ class PasienController extends Controller
     }
 
     /**
-     * 🔹 Tampilkan form pendaftaran pasien baru
+     * Form pendaftaran pasien baru
      */
     public function create()
     {
@@ -31,7 +33,7 @@ class PasienController extends Controller
     }
 
     /**
-     * 🔹 Simpan data pasien baru dengan No RM otomatis
+     * Simpan pasien baru + generate No RM otomatis
      */
     public function store(Request $request)
     {
@@ -39,25 +41,74 @@ class PasienController extends Controller
             'nik' => 'required|unique:pasiens,nik',
             'nama' => 'required',
             'alamat' => 'required',
-            'jenis_kelamin' => 'required',
+            'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'required|date',
-            'no_telepon' => 'required'
+            'no_telepon' => 'required',
+            
+            // Data tambahan dari form pendaftaran pasien baru (Wajib divalidasi)
+            'provinsi' => 'required',
+            'kota' => 'required',
+            'kecamatan' => 'required',
+            'penjamin' => 'required',
+            'poliklinik_tujuan' => 'required', 
+            'tanggal_kunjungan' => 'required|date',
+            'no_bpjs' => 'nullable|max:13',
+            
+            // Kolom opsional yang mungkin ada di form
+            'email' => 'nullable|email',
+            'agama' => 'nullable|string',
+            'status_keluarga' => 'nullable|string',
+            'golongan_darah' => 'nullable|string',
+            'pekerjaan' => 'nullable|string',
         ]);
-
-        // Generate No RM otomatis
+        
+        // Atur agar NIK dan No BPJS menjadi nullable jika tidak diisi
+        $validated['nik'] = $validated['nik'] ?? null;
+        $validated['no_bpjs'] = $validated['no_bpjs'] ?? null;
+        
+        // 1. Generate No RM otomatis: RM00001, RM00002, dst
         $lastPasien = Pasien::orderBy('id', 'desc')->first();
         $nextId = $lastPasien ? $lastPasien->id + 1 : 1;
-        $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT); // contoh: RM00001
+        $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         $validated['no_rm'] = $no_rm;
+        
+        // --- PERBAIKAN: Pisahkan data Pasien dari data Antrian ---
+        $pasienData = array_filter($validated, function($key) {
+            // Filter kolom yang disimpan ke tabel 'pasiens'
+            return in_array($key, [
+                'nik', 'no_rm', 'nama', 'alamat', 'jenis_kelamin', 'tanggal_lahir', 
+                'no_telepon', 'email', 'agama', 'status_keluarga', 'golongan_darah', 
+                'pekerjaan', 'provinsi', 'kota', 'kecamatan', 'no_bpjs'
+            ]);
+        }, ARRAY_FILTER_USE_KEY);
 
-        Pasien::create($validated);
+        // Pastikan kolom 'alamat' lengkap, gabungkan kecamatan/kota jika perlu (tergantung kebutuhan tampilan)
+        $pasien = Pasien::create($pasienData);
 
-        return redirect()->route('data.master')->with('success', '✅ Pasien baru berhasil didaftarkan dan masuk ke Data Master!');
+        // 2. LOGIC ANTRIAN BARU
+        // Dapatkan ID pasien yang baru dibuat
+        $pasien_id = $pasien->id; 
+
+        // Tentukan data antrian
+        $dataAntrian = [
+            'pasien_id' => $pasien_id,
+            'poli_tujuan' => $validated['poliklinik_tujuan'],
+            'tanggal_kunjungan' => $validated['tanggal_kunjungan'],
+            'penjamin' => $validated['penjamin'],
+            'status' => 'Menunggu', 
+        ];
+
+        // *** PENTING: Hapus komentar di bawah ini setelah Model Antrian Anda siap ***
+        // Antrian::create($dataAntrian); // <--- Baris ini yang akan menyimpan data antrian
+        
+        // 3. Redirect
+        return redirect()->route('data.master')
+            ->with('success', 'Pasien baru berhasil didaftarkan dan masuk antrian ' . $validated['poliklinik_tujuan'] . '! No RM: ' . $no_rm);
     }
 
     /**
-     * 🔹 Tampilkan form pencarian pasien lama
+     * Form pencarian pasien lama
      */
     public function searchForm()
     {
@@ -69,7 +120,7 @@ class PasienController extends Controller
     }
 
     /**
-     * 🔹 Cari pasien berdasarkan No RM / NIK / Nama
+     * Cari pasien berdasarkan No RM / NIK / Nama (untuk pasien lama)
      */
     public function searchByNoRM(Request $request)
     {
@@ -87,12 +138,13 @@ class PasienController extends Controller
                 'hasil' => null
             ]);
         } else {
-            return redirect()->route('pasien.lama')->with('info', 'Pasien tidak ditemukan. Silakan daftar sebagai pasien baru.');
+            return redirect()->route('pasien.lama')
+                ->with('info', 'Pasien tidak ditemukan. Silakan daftar sebagai pasien baru.');
         }
     }
 
     /**
-     * 🔹 Pencarian di Data Master (POST)
+     * Pencarian di Data Master
      */
     public function search(Request $request)
     {
@@ -111,7 +163,7 @@ class PasienController extends Controller
     }
 
     /**
-     * 🔹 Tampilkan form edit pasien
+     * Form edit pasien
      */
     public function edit($id)
     {
@@ -123,7 +175,7 @@ class PasienController extends Controller
     }
 
     /**
-     * 🔹 Simpan perubahan data pasien
+     * Update data pasien
      */
     public function update(Request $request, $id)
     {
@@ -134,24 +186,53 @@ class PasienController extends Controller
             'no_rm' => 'required|unique:pasiens,no_rm,' . $id,
             'nama' => 'required',
             'alamat' => 'required',
-            'jenis_kelamin' => 'required',
+            'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'required|date',
             'no_telepon' => 'required'
         ]);
 
         $pasien->update($validated);
 
-        return redirect()->route('data.master')->with('success', '✅ Data pasien berhasil diperbarui!');
+        return redirect()->route('data.master')
+            ->with('success', 'Data pasien berhasil diperbarui!');
     }
 
     /**
-     * 🔹 Hapus data pasien
+     * Hapus pasien
      */
     public function destroy($id)
     {
         $pasien = Pasien::findOrFail($id);
         $pasien->delete();
 
-        return redirect()->route('data.master')->with('success', '🗑️ Data pasien berhasil dihapus!');
+        return redirect()->route('data.master')
+            ->with('success', 'Data pasien berhasil dihapus!');
+    }
+
+    // FITUR BARU: AJAX Live Search untuk semua Poli (KIA, Gigi, Umum, dll)
+    public function cariPasienAjax(Request $request)
+    {
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $pasien = Pasien::where('no_rm', 'LIKE', "%{$query}%")
+            ->orWhere('nama', 'LIKE', "%{$query}%")
+            ->orWhere('nik', 'LIKE', "%{$query}%")
+            ->select([
+                'id',
+                'no_rm',
+                'nama',
+                'tanggal_lahir',
+                'jenis_kelamin',
+                'alamat',
+                'no_telepon'
+            ])
+            ->limit(10)
+            ->get();
+
+        return response()->json($pasien);
     }
 }
