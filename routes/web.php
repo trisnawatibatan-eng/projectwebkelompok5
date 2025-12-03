@@ -13,11 +13,14 @@ use App\Http\Controllers\KasirController; // PENTING: Tambahkan import KasirCont
 // ===================================================================
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// PERBAIKAN FINAL LOGOUT: Pastikan menggunakan POST agar sesuai dengan form di layout
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout'); 
 
 // ===================================================================
 // SEMUA ROUTE YANG BUTUH LOGIN
 // ===================================================================
+// Catatan: Route ini semua harus dilindungi oleh middleware 'role' yang sesuai
 Route::middleware('checksession')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -51,13 +54,10 @@ Route::middleware('checksession')->group(function () {
     Route::post('/apotek/resep/store', [ApotekController::class, 'storeResep'])->name('apotek.resep.store');
     
     // ===================================================================
-    // KASIR / PEMBAYARAN (BARU)
+    // KASIR / PEMBAYARAN
     // ===================================================================
-    // Route untuk halaman Kasir utama
     Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index'); 
-    // Route untuk memproses pembayaran (action dari form)
     Route::post('/kasir/bayar', [KasirController::class, 'bayar'])->name('kasir.bayar'); 
-    // API untuk Pencarian Tagihan via AJAX (digunakan oleh JavaScript)
     Route::get('/api/kasir/tagihan', [KasirController::class, 'cariTagihan'])->name('kasir.cari.tagihan');
 
-}); 
+});

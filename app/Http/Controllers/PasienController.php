@@ -33,28 +33,32 @@ class PasienController extends Controller
     }
 
     /**
-     * Simpan pasien baru + generate No RM otomatis
+     * Simpan pasien baru + generate No RM otomatis, dan buat Antrian.
      */
     public function store(Request $request)
     {
+        // PENTING: Validasi Nama dan No Asuransi secara kondisional
         $validated = $request->validate([
             'nik' => 'required|unique:pasiens,nik',
             'nama' => 'required',
             'alamat' => 'required',
-            'jenis_kelamin' => 'required|in:L,P',
+            'jenis_kelamin' => 'required|in:L,P', 
             'tanggal_lahir' => 'required|date',
             'no_telepon' => 'required',
             
-            // Data tambahan dari form pendaftaran pasien baru (Wajib divalidasi)
+            // Data Alamat & Penjamin
             'provinsi' => 'required',
             'kota' => 'required',
             'kecamatan' => 'required',
-            'penjamin' => 'required',
+            'penjamin' => 'required|in:Umum,Asuransi', // Hanya izinkan Umum atau Asuransi
             'poliklinik_tujuan' => 'required', 
             'tanggal_kunjungan' => 'required|date',
-            'no_bpjs' => 'nullable|max:13',
             
-            // Kolom opsional yang mungkin ada di form
+            // Kolom Asuransi (Divalidasi sebagai required jika penjamin == 'Asuransi')
+            'nama_asuransi' => 'nullable|string|required_if:penjamin,Asuransi',
+            'no_asuransi' => 'nullable|string|required_if:penjamin,Asuransi',
+            
+            // Kolom Opsional Lainnya
             'email' => 'nullable|email',
             'agama' => 'nullable|string',
             'status_keluarga' => 'nullable|string',
@@ -62,46 +66,47 @@ class PasienController extends Controller
             'pekerjaan' => 'nullable|string',
         ]);
         
-        // Atur agar NIK dan No BPJS menjadi nullable jika tidak diisi
-        $validated['nik'] = $validated['nik'] ?? null;
-        $validated['no_bpjs'] = $validated['no_bpjs'] ?? null;
+        // 1. Membersihkan dan Mempersiapkan Data Pasien
         
-        // 1. Generate No RM otomatis: RM00001, RM00002, dst
+        // JIKA BUKAN ASURANSI, SET KOLOM ASURANSI MENJADI NULL (PENTING untuk database)
+        if ($validated['penjamin'] !== 'Asuransi') {
+            $validated['nama_asuransi'] = null;
+            $validated['no_asuransi'] = null;
+        }
+
+        // Generate No RM otomatis: RM00001, RM00002, dst
         $lastPasien = Pasien::orderBy('id', 'desc')->first();
         $nextId = $lastPasien ? $lastPasien->id + 1 : 1;
         $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
-
         $validated['no_rm'] = $no_rm;
         
-        // --- PERBAIKAN: Pisahkan data Pasien dari data Antrian ---
+        // Filter data untuk tabel 'pasiens' (pastikan kolom NIK, Asuransi, dll. ada di Model/Migrasi Pasien)
         $pasienData = array_filter($validated, function($key) {
-            // Filter kolom yang disimpan ke tabel 'pasiens'
+            // Kolom-kolom yang ada di formulir pasien baru DAN harus masuk ke tabel `pasiens`
             return in_array($key, [
                 'nik', 'no_rm', 'nama', 'alamat', 'jenis_kelamin', 'tanggal_lahir', 
                 'no_telepon', 'email', 'agama', 'status_keluarga', 'golongan_darah', 
-                'pekerjaan', 'provinsi', 'kota', 'kecamatan', 'no_bpjs'
+                'pekerjaan', 'provinsi', 'kota', 'kecamatan', 'nama_asuransi', 'no_asuransi' 
             ]);
         }, ARRAY_FILTER_USE_KEY);
 
-        // Pastikan kolom 'alamat' lengkap, gabungkan kecamatan/kota jika perlu (tergantung kebutuhan tampilan)
         $pasien = Pasien::create($pasienData);
 
         // 2. LOGIC ANTRIAN BARU
-        // Dapatkan ID pasien yang baru dibuat
         $pasien_id = $pasien->id; 
 
-        // Tentukan data antrian
         $dataAntrian = [
             'pasien_id' => $pasien_id,
             'poli_tujuan' => $validated['poliklinik_tujuan'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'],
             'penjamin' => $validated['penjamin'],
             'status' => 'Menunggu', 
+            // Tambahkan kolom nomor_antrian yang dihitung di sini
         ];
 
         // *** PENTING: Hapus komentar di bawah ini setelah Model Antrian Anda siap ***
-        // Antrian::create($dataAntrian); // <--- Baris ini yang akan menyimpan data antrian
-        
+        // Antrian::create($dataAntrian);
+
         // 3. Redirect
         return redirect()->route('data.master')
             ->with('success', 'Pasien baru berhasil didaftarkan dan masuk antrian ' . $validated['poliklinik_tujuan'] . '! No RM: ' . $no_rm);
