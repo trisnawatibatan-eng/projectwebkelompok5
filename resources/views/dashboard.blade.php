@@ -9,7 +9,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark"
         style="background-color: #800000; border-radius: 0.75rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15); margin-bottom: 1.5rem; padding: 0.75rem 1rem;">
         <div class="container-fluid">
-            <a class="navbar-brand fw-semibold text-white" href="#">Klinik Pratama</a>
+            <a class="navbar-brand fw-semibold text-white" href="#">Klinik Pratama Mulia</a>
         </div>
     </nav>
 
