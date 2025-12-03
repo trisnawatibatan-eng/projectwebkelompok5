@@ -10,6 +10,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {{-- Link Font Poppins --}}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    {{-- PENTING: Untuk menggunakan Auth::check() di view --}}
+    @php
+        use Illuminate\Support\Facades\Auth;
+        $userRole = Auth::check() ? Auth::user()->role : 'guest';
+        // Ambil nama pengguna yang login
+        $userName = Auth::check() ? Auth::user()->name : 'Guest';
+    @endphp
 
 
     <style>
@@ -80,7 +88,6 @@
             padding: 12px 20px !important;
             border-radius: 8px; 
             margin: 8px 15px;
-            transition: all 0.3s ease;
             font-weight: 500;
         }
         
@@ -206,12 +213,18 @@
         </div>
 
         <nav class="mt-4">
+            
+            {{-- AKSES ADMIN SAJA --}}
+            @if (in_array($userRole, ['admin']))
             <a href="{{ route('dashboard') }}" 
                 class="nav-link d-flex align-items-center {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="bi bi-speedometer2"></i>
                 <span class="ms-3">Dashboard</span>
             </a>
+            @endif
 
+            {{-- AKSES PETUGAS PENDAFTARAN & ADMIN --}}
+            @if (in_array($userRole, ['admin', 'pendaftaran']))
             <a href="{{ route('data.master') }}" 
                 class="nav-link d-flex align-items-center {{ request()->routeIs('data.master') ? 'active' : '' }}">
                 <i class="bi bi-database-fill"></i>
@@ -229,25 +242,34 @@
                 <i class="bi bi-people-fill"></i>
                 <span class="ms-3">Pasien Lama</span>
             </a>
-
+            @endif
+            
+            {{-- AKSES DOKTER/PERAWAT & ADMIN --}}
+            @if (in_array($userRole, ['admin', 'dokter']))
             <a href="{{ route('poliklinik') }}" 
                 class="nav-link d-flex align-items-center {{ request()->routeIs('poliklinik') ? 'active' : '' }}">
                 <i class="bi bi-hospital-fill"></i>
                 <span class="ms-3">Poliklinik</span>
             </a>
+            @endif
             
-            {{-- MENU KASIR BARU --}}
+            {{-- AKSES KASIR & ADMIN --}}
+            @if (in_array($userRole, ['admin', 'kasir']))
             <a href="{{ route('kasir.index') }}" 
                 class="nav-link d-flex align-items-center {{ request()->routeIs('kasir.index') ? 'active' : '' }}">
                 <i class="bi bi-cash-stack"></i> 
                 <span class="ms-3">Kasir</span>
             </a>
-
+            @endif
+            
+            {{-- AKSES APOTEK & ADMIN --}}
+            @if (in_array($userRole, ['admin', 'apotek']))
             <a href="{{ route('apotek.index') }}" 
                 class="nav-link d-flex align-items-center {{ request()->routeIs('apotek.index') ? 'active' : '' }}">
                 <i class="bi bi-bag-plus-fill"></i> 
                 <span class="ms-3">Apotek</span>
             </a>
+            @endif
 
             <hr style="border-color: rgba(255,255,255,0.2); margin: 20px 15px;">
 
@@ -276,7 +298,8 @@
                 {{-- JUDUL HALAMAN TELAH DIHILANGKAN --}}
             </div>
             <span class="text-primary fw-semibold">
-                <i class="bi bi-person-circle me-1"></i> Admin
+                {{-- MENGAMBIL NAMA PENGGUNA YANG SEDANG LOGIN --}}
+                <i class="bi bi-person-circle me-1"></i> {{ $userName }}
             </span>
         </div>
 
