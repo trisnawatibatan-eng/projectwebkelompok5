@@ -47,7 +47,7 @@ class PasienController extends Controller
         // Generate No RM otomatis
         $lastPasien = Pasien::orderBy('id', 'desc')->first();
         $nextId = $lastPasien ? $lastPasien->id + 1 : 1;
-        $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT); // contoh: RM00001
+        $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         $validated['no_rm'] = $no_rm;
 
@@ -64,12 +64,12 @@ class PasienController extends Controller
         return view('pendaftaran.pasien_lama', [
             'title' => 'Pendaftaran Pasien Lama',
             'pasien' => null,
-            'hasil' => null
         ]);
     }
 
     /**
      * 🔹 Cari pasien berdasarkan No RM / NIK / Nama
+     * ✔ Hasil pencarian langsung muncul tanpa redirect
      */
     public function searchByNoRM(Request $request)
     {
@@ -80,15 +80,11 @@ class PasienController extends Controller
             ->orWhere('nama', 'like', "%$keyword%")
             ->first();
 
-        if ($pasien) {
-            return view('pendaftaran.pasien_lama', [
-                'title' => 'Pendaftaran Pasien Lama',
-                'pasien' => $pasien,
-                'hasil' => null
-            ]);
-        } else {
-            return redirect()->route('pasien.lama')->with('info', 'Pasien tidak ditemukan. Silakan daftar sebagai pasien baru.');
-        }
+        return view('pendaftaran.pasien_lama', [
+            'title' => 'Pendaftaran Pasien Lama',
+            'pasien' => $pasien,
+            'info' => $pasien ? null : 'Pasien tidak ditemukan. Silakan daftar sebagai pasien baru.'
+        ]);
     }
 
     /**
