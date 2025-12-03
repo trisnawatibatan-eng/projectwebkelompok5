@@ -123,4 +123,15 @@ class PoliklinikController extends Controller
 
         return redirect()->route('poliklinik')->with('success', 'Pemeriksaan berhasil disimpan, pasien siap dirujuk atau pulang.');
     }
+
+    /**
+     * Tampilkan daftar kunjungan/pemeriksaan terbaru.
+     */
+    public function kunjungan()
+    {
+        // Ambil pemeriksaan terbaru, batasi 50 terakhir
+        $kunjungan = Pemeriksaan::orderBy('created_at', 'desc')->limit(50)->get();
+
+        return view('poliklinik.kunjungan', compact('kunjungan'));
+    }
 }

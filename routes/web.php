@@ -42,6 +42,7 @@ Route::middleware('checksession')->group(function () {
 
     // POLIKLINIK
     Route::get('/poliklinik', [PoliklinikController::class, 'index'])->name('poliklinik');
+    Route::get('/kunjungan', [PoliklinikController::class, 'kunjungan'])->name('kunjungan.index');
     Route::get('/pemeriksaan/create', [PoliklinikController::class, 'create'])->name('pemeriksaan.create');
     Route::post('/pemeriksaan/store', [PoliklinikController::class, 'store'])->name('pemeriksaan.store');
 
