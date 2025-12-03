@@ -60,4 +60,4 @@ Route::middleware('checksession')->group(function () {
     // API untuk Pencarian Tagihan via AJAX (digunakan oleh JavaScript)
     Route::get('/api/kasir/tagihan', [KasirController::class, 'cariTagihan'])->name('kasir.cari.tagihan');
 
-});
+}); 
