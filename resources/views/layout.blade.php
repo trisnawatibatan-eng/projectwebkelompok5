@@ -251,6 +251,12 @@
                 <i class="bi bi-hospital-fill"></i>
                 <span class="ms-3">Poliklinik</span>
             </a>
+            {{-- Daftar Kunjungan (lihat riwayat pemeriksaan) --}}
+            <a href="{{ route('kunjungan.index') }}"
+                class="nav-link d-flex align-items-center {{ request()->routeIs('kunjungan.index') ? 'active' : '' }}">
+                <i class="bi bi-card-list"></i>
+                <span class="ms-3">Kunjungan</span>
+            </a>
             @endif
             
             {{-- AKSES KASIR & ADMIN --}}
