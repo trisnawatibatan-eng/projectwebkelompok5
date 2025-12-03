@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk | Klinik Pratama</title>
-    <!-- Memuat Font Poppins dari Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Masuk | puskesmas pratama </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -87,16 +85,11 @@
 <body>
 
 <div class="login-card">
-    <!-- Placeholder Logo diubah warnanya menjadi Maroon -->
-    <img src="https://placehold.co/90x90/800000/ffffff?text=P" 
-          alt="Logo Klinik Pratama" 
-          class="rounded-circle mb-4 logo"
-          onerror="this.onerror=null; this.src='https://placehold.co/90x90/cccccc/000000?text=P'">
-    
-    <h3>
-        <i class="bi bi-hospital-fill text-danger"></i> 
-        Klinik Pratama
-    </h3>
+    <img src="" 
+         alt="" 
+         width="80" 
+         class="rounded-circle mb-3">
+    <h3></i>❤️Login puskesmas</h3>
 
     @if(session('error'))
         <div class="alert alert-danger py-2 rounded-lg" role="alert">{{ session('error') }}</div>

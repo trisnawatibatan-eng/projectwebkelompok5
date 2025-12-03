@@ -7,7 +7,7 @@
     <div class="row g-4">
         <div class="col-md-4">
             <div class="card shadow-sm p-4 text-center border-0 rounded-4" style="background-color: #0bf132f6; color:white;">
-                <h5>Total Pasien</h5>
+                <h5>Total Pasien </h5>
                 <h2>{{ $total }}</h2>
                 <i class="bi bi-people-fill fs-3"></i>
             </div>
@@ -29,7 +29,7 @@
     </div>
 
     <div class="card shadow-sm mt-5 border-0 rounded-4 p-4 text-center">
-        <h5 class="mb-3">🧮 Statistik Jenis Kelamin</h5>
+        <h5 class="mb-3">🧮 Jenis Kelamin</h5>
         <div style="max-width: 400px; margin: 0 auto;">  <!-- Ukuran grafik dibatasi -->
             <canvas id="genderChart" width="300" height="300"></canvas>
         </div>
@@ -57,7 +57,7 @@
                 legend: { position: 'bottom' },
                 title: {
                     display: true,
-                    text: 'Perbandingan Jenis Kelamin Pasien',
+                    text: 'Perbandingan Jenis Kelamin Pada Pasien',
                     font: { size: 14 }
                 }
             }
