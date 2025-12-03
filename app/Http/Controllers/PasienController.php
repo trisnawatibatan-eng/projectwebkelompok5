@@ -62,6 +62,9 @@ class PasienController extends Controller
             'pekerjaan' => 'nullable|string',
         ]);
         
+        // Konversi jenis_kelamin dari L/P menjadi Laki-laki/Perempuan untuk enum
+        $validated['jenis_kelamin'] = $validated['jenis_kelamin'] === 'L' ? 'Laki-laki' : 'Perempuan';
+        
         // Atur agar NIK dan No BPJS menjadi nullable jika tidak diisi
         $validated['nik'] = $validated['nik'] ?? null;
         $validated['no_bpjs'] = $validated['no_bpjs'] ?? null;

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 // Jika Anda menggunakan Model Pasien, pastikan di-import di sini
-// use App\Models\Pasien; 
-// use App\Models\Pemeriksaan;
+use App\Models\Pasien;
+use App\Models\Pemeriksaan;
 
 class PoliklinikController extends Controller
 {
@@ -74,32 +74,53 @@ class PoliklinikController extends Controller
      */
     public function store(Request $request)
     {
-        // PENTING: Lakukan Validasi Data di sini sebelum disimpan
-        $request->validate([
+        // Log incoming request to help debug missing saves
+        \Log::info('Pemeriksaan request incoming', $request->all());
+
+        // Validasi input
+        $validated = $request->validate([
             'pasien_id' => 'required|numeric',
             'poli_slug' => 'required|string',
             'keluhan_utama' => 'required|string',
             'td' => 'nullable|string',
-            // ... tambahkan validasi untuk field formulir lainnya ...
+            'suhu' => 'nullable|numeric',
+            'nadi' => 'nullable|integer',
+            'rr' => 'nullable|integer',
             'diagnosis' => 'required|string',
+            'terapi' => 'nullable|string',
             'action' => 'required|string|in:save_only,save_and_next',
         ]);
-        
-        // --- SIMULASI PENYIMPANAN DATA (GANTI DENGAN LOGIC NYATA) ---
-        // Dalam aplikasi nyata: $pemeriksaan = Pemeriksaan::create($request->all());
-        $pemeriksaan_id = rand(100, 999); // Simulasikan ID Pemeriksaan yang baru disimpan
-        
-        // Logika Pengarahan (Tautan)
-        if ($request->input('action') == 'save_and_next') {
-            // Redirect ke Apotek (Form Resep Baru)
-            // Route 'apotek.resep.create' harus didefinisikan di web.php
-            return redirect()->route('apotek.resep.create', [
-                'pemeriksaan_id' => $pemeriksaan_id
-            ])->with('success', 'Pemeriksaan berhasil disimpan. Lanjutkan ke form Resep Obat.');
-        } 
-        
-        // Jika action == 'save_only'
-        return redirect()->route('poliklinik')
-             ->with('success', 'Pemeriksaan berhasil disimpan, pasien siap dirujuk atau pulang.');
+
+        // Log validated data
+        \Log::info('Pemeriksaan validated', $validated);
+
+        // Ambil data pasien nyata dari tabel pasiens
+        $pasien = Pasien::find($validated['pasien_id']);
+        if (!$pasien) {
+            return redirect()->back()->withInput()->with('error', 'Pasien tidak ditemukan. Silakan pilih pasien terlebih dahulu.');
+        }
+
+        // Simpan pemeriksaan ke tabel 'pemeriksaan' menggunakan model Pemeriksaan
+        $pemeriksaan = Pemeriksaan::create([
+            'no_rm' => $pasien->no_rm,
+            'nama' => $pasien->nama,
+            'keluhan_utama' => $validated['keluhan_utama'],
+            'riwayat_penyakit' => $request->input('riwayat_penyakit_sekarang') ?? $request->input('riwayat_penyakit_dahulu') ?? null,
+            'suhu' => $validated['suhu'] ?? null,
+            'tekanan_darah' => $validated['td'] ?? null,
+            'nadi' => $validated['nadi'] ?? null,
+            'respirasi' => $validated['rr'] ?? null,
+            'diagnosa' => $validated['diagnosis'],
+            'terapi' => $validated['terapi'] ?? null,
+            'rujukan' => null,
+        ]);
+
+        // Jika pengguna memilih lanjut ke resep (apotek), arahkan dengan ID pemeriksaan nyata
+        if ($validated['action'] === 'save_and_next') {
+            return redirect()->route('apotek.resep.create', ['pemeriksaan_id' => $pemeriksaan->id])
+                         ->with('success', 'Pemeriksaan berhasil disimpan. Lanjutkan ke form Resep Obat.');
+        }
+
+        return redirect()->route('poliklinik')->with('success', 'Pemeriksaan berhasil disimpan, pasien siap dirujuk atau pulang.');
     }
 }
