@@ -150,31 +150,40 @@
                             </div>
                             
                             <!-- ============================================== -->
-                            <!-- SECTION 3: DATA KUNJUNGAN & PEMBAYARAN -->
+                            <!-- SECTION 3: DATA KUNJUNGAN & PENJAMIN -->
                             <!-- ============================================== -->
                             <h5 class="text-maroon border-bottom border-maroon pb-2 mb-4 fw-bold">3. Data Kunjungan & Penjamin</h5>
 
                             <div class="row g-4 mb-5">
-                                {{-- JENIS PEMBAYARAN --}}
+                                {{-- JENIS PEMBAYARAN (Hanya Umum dan Asuransi) --}}
                                 <div class="col-lg-3 col-md-6">
                                     <label class="form-label fw-semibold">Jenis Pembayaran <span class="text-maroon">*</span></label>
                                     <select name="penjamin" id="penjamin_select" class="form-select form-select-lg rounded-3 @error('penjamin') is-invalid-maroon @enderror" required>
                                         <option value="">-- Pilih --</option>
-                                        <option value="Umum" {{ old('penjamin') == 'Umum' ? 'selected' : '' }}>Umum (Tunai/Non-BPJS)</option>
-                                        <option value="BPJS" {{ old('penjamin') == 'BPJS' ? 'selected' : '' }}>BPJS Kesehatan</option>
-                                        <option value="Asuransi" {{ old('penjamin') == 'Asuransi' ? 'selected' : '' }}>Asuransi Lain</option>
+                                        <option value="Umum" {{ old('penjamin') == 'Umum' ? 'selected' : '' }}>Umum</option>
+                                        <option value="Asuransi" {{ old('penjamin') == 'Asuransi' ? 'selected' : '' }}>Asuransi</option>
                                     </select>
                                     @error('penjamin')
                                         <div class="invalid-feedback-maroon">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 
-                                {{-- INPUT NO BPJS (KONDISIONAL) --}}
-                                <div class="col-lg-3 col-md-6" id="bpjs_input_group" style="display: {{ old('penjamin') == 'BPJS' ? 'block' : 'none' }};">
-                                    <label class="form-label fw-semibold">Nomor BPJS <span class="text-maroon">*</span></label>
-                                    <input type="text" name="no_bpjs" id="no_bpjs" class="form-control form-control-lg rounded-3 @error('no_bpjs') is-invalid-maroon @enderror" 
-                                            placeholder="Masukkan 13 digit No. BPJS" value="{{ old('no_bpjs') }}" maxlength="13">
-                                    @error('no_bpjs')
+                                {{-- INPUT NAMA ASURANSI (KONDISIONAL) --}}
+                                <div class="col-lg-3 col-md-6" id="nama_asuransi_group" style="display: none;">
+                                    <label class="form-label fw-semibold">Nama Asuransi <span class="text-maroon">*</span></label>
+                                    <input type="text" name="nama_asuransi" id="nama_asuransi" class="form-control form-control-lg rounded-3 @error('nama_asuransi') is-invalid-maroon @enderror" 
+                                            placeholder="Contoh: Prudential, BPJS Ketenagakerjaan" value="{{ old('nama_asuransi') }}">
+                                    @error('nama_asuransi')
+                                        <div class="invalid-feedback-maroon">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- INPUT NO ASURANSI (KONDISIONAL) --}}
+                                <div class="col-lg-3 col-md-6" id="no_asuransi_group" style="display: none;">
+                                    <label class="form-label fw-semibold">Nomor Asuransi <span class="text-maroon">*</span></label>
+                                    <input type="text" name="no_asuransi" id="no_asuransi" class="form-control form-control-lg rounded-3 @error('no_asuransi') is-invalid-maroon @enderror" 
+                                            placeholder="Masukkan Nomor Kartu Asuransi" value="{{ old('no_asuransi') }}">
+                                    @error('no_asuransi')
                                         <div class="invalid-feedback-maroon">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -325,7 +334,6 @@
 @push('scripts')
 <script>
     // --- Data Simulasi Wilayah Indonesia ---
-    // PENTING: Dalam aplikasi nyata, ini harus diambil dari API atau Database
     const provinces = [
         { id: 1, name: "DKI Jakarta" },
         { id: 2, name: "Jawa Barat" },
@@ -361,64 +369,84 @@
         const selectKota = document.getElementById('kota');
         const selectKecamatan = document.getElementById('kecamatan');
         const selectPenjamin = document.getElementById('penjamin_select');
-        const bpjsInputGroup = document.getElementById('bpjs_input_group');
-        const inputNoBpjs = document.getElementById('no_bpjs');
         
-        // --- 1. KONDISIONAL BPJS INPUT ---
-        function toggleBpjsInput() {
-            if (selectPenjamin.value === 'BPJS') {
-                bpjsInputGroup.style.display = 'block';
-                inputNoBpjs.setAttribute('required', 'required');
+        // Elemen Asuransi
+        const namaAsuransiGroup = document.getElementById('nama_asuransi_group');
+        const noAsuransiGroup = document.getElementById('no_asuransi_group');
+        const inputNamaAsuransi = document.getElementById('nama_asuransi');
+        const inputNoAsuransi = document.getElementById('no_asuransi');
+        
+        // --- 1. KONDISIONAL ASURANSI INPUT ---
+        function toggleAsuransiInput() {
+            const isAsuransi = selectPenjamin.value === 'Asuransi';
+
+            if (isAsuransi) {
+                namaAsuransiGroup.style.display = 'block';
+                noAsuransiGroup.style.display = 'block';
+                inputNamaAsuransi.setAttribute('required', 'required');
+                inputNoAsuransi.setAttribute('required', 'required');
             } else {
-                bpjsInputGroup.style.display = 'none';
-                inputNoBpjs.removeAttribute('required');
+                namaAsuransiGroup.style.display = 'none';
+                noAsuransiGroup.style.display = 'none';
+                inputNamaAsuransi.removeAttribute('required');
+                inputNoAsuransi.removeAttribute('required');
+                // Kosongkan nilai agar tidak ikut tersimpan jika tidak relevan
+                inputNamaAsuransi.value = ''; 
+                inputNoAsuransi.value = '';
             }
         }
 
-        selectPenjamin.addEventListener('change', toggleBpjsInput);
-        toggleBpjsInput(); // Jalankan saat load untuk old data
+        selectPenjamin.addEventListener('change', toggleAsuransiInput);
+        toggleAsuransiInput(); // Jalankan saat load untuk old data
 
         // --- 2. CASCADING DROPDOWN WILAYAH ---
         
         // Populate Provinsi
         function populateProvinces() {
             provinces.forEach(p => {
-                const option = new Option(p.name, p.id);
+                const option = new Option(p.name, p.name); // Menggunakan nama sebagai value untuk kesederhanaan
                 selectProvinsi.add(option);
             });
         }
 
         // Populate Kota/Kabupaten
         selectProvinsi.addEventListener('change', function() {
-            const provinceId = parseInt(this.value);
+            const provinceName = this.value;
             selectKota.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
             selectKecamatan.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
             selectKota.disabled = true;
             selectKecamatan.disabled = true;
             
-            if (provinceId) {
-                const filteredCities = cities.filter(c => c.province_id === provinceId);
-                filteredCities.forEach(c => {
-                    const option = new Option(c.name, c.id);
-                    selectKota.add(option);
-                });
-                selectKota.disabled = false;
+            if (provinceName) {
+                // Di sini Anda perlu memetakan nama provinsi ke ID untuk filtering
+                const selectedProvince = provinces.find(p => p.name === provinceName);
+                if (selectedProvince) {
+                    const filteredCities = cities.filter(c => c.province_id === selectedProvince.id);
+                    filteredCities.forEach(c => {
+                        const option = new Option(c.name, c.name); // Menggunakan nama sebagai value
+                        selectKota.add(option);
+                    });
+                    selectKota.disabled = false;
+                }
             }
         });
 
         // Populate Kecamatan
         selectKota.addEventListener('change', function() {
-            const cityId = parseInt(this.value);
+            const cityName = this.value;
             selectKecamatan.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
             selectKecamatan.disabled = true;
             
-            if (cityId) {
-                const filteredDistricts = districts.filter(d => d.city_id === cityId);
-                filteredDistricts.forEach(d => {
-                    const option = new Option(d.name, d.name); // Menggunakan nama sebagai value
-                    selectKecamatan.add(option);
-                });
-                selectKecamatan.disabled = false;
+            if (cityName) {
+                const selectedCity = cities.find(c => c.name === cityName);
+                if (selectedCity) {
+                    const filteredDistricts = districts.filter(d => d.city_id === selectedCity.id);
+                    filteredDistricts.forEach(d => {
+                        const option = new Option(d.name, d.name); // Menggunakan nama sebagai value
+                        selectKecamatan.add(option);
+                    });
+                    selectKecamatan.disabled = false;
+                }
             }
         });
         
