@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pendaftaran Puskesmas Pratama</title>
+    <title>@yield('title', 'Dashboard') | Klinik Pratama</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -166,6 +167,17 @@
         .content-header .text-primary {
             color: var(--primary-maroon) !important;
         }
+        
+        /* Tambahan: Style untuk tombol toggle */
+        .btn-toggle-custom {
+            color: var(--primary-maroon);
+            border-color: #dee2e6;
+        }
+        .btn-toggle-custom:hover {
+            color: white;
+            background-color: var(--primary-maroon);
+            border-color: var(--primary-maroon);
+        }
 
         /* --- Responsive Design --- */
         @media (max-width: 992px) {
@@ -223,15 +235,18 @@
                 <i class="bi bi-hospital-fill"></i>
                 <span class="ms-3">Poliklinik</span>
             </a>
+            
+            {{-- MENU KASIR BARU --}}
+            <a href="{{ route('kasir.index') }}" 
+                class="nav-link d-flex align-items-center {{ request()->routeIs('kasir.index') ? 'active' : '' }}">
+                <i class="bi bi-cash-stack"></i> 
+                <span class="ms-3">Kasir</span>
+            </a>
+
             <a href="{{ route('apotek.index') }}" 
                 class="nav-link d-flex align-items-center {{ request()->routeIs('apotek.index') ? 'active' : '' }}">
                 <i class="bi bi-bag-plus-fill"></i> 
                 <span class="ms-3">Apotek</span>
-            </a>
-            <a href="{{ route('kasir.index') }}" 
-                class="nav-link d-flex align-items-center {{ request()->routeIs('kasir.index') ? 'active' : '' }}">
-                <i class="bi bi-bag-plus-fill"></i> 
-                <span class="ms-3">Kasir</span>
             </a>
 
             <hr style="border-color: rgba(255,255,255,0.2); margin: 20px 15px;">
@@ -254,14 +269,11 @@
         <div id="content-header" class="content-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
                 {{-- Tombol Toggle Sidebar --}}
-                <button class="btn btn-outline-secondary me-3" id="sidebar-toggle" style="height: 35px; width: 35px; padding: 0;">
+                <button class="btn btn-toggle-custom me-3" id="sidebar-toggle" style="height: 35px; width: 35px; padding: 0;">
                     <i class="bi bi-list fs-5"></i>
                 </button>
                 
-                <h5 class="mb-0 text-secondary">
-                    @yield('title', 'Dashboard') 
-                    <small class="text-muted ms-2">/ Klinik Pratama</small>
-                </h5>
+                {{-- JUDUL HALAMAN TELAH DIHILANGKAN --}}
             </div>
             <span class="text-primary fw-semibold">
                 <i class="bi bi-person-circle me-1"></i> Admin
