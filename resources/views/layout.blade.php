@@ -18,7 +18,7 @@
             --light-maroon: #a00000; /* Maroon yang sedikit lebih terang */
             --dark-maroon: #5c0000;   /* Maroon yang sedikit lebih gelap */
             --sidebar-bg: linear-gradient(180deg, var(--primary-maroon), var(--dark-maroon)); /* Gradien Sidebar Maroon */
-            --body-bg: #f5f7fa; /* Latar Belakang Konten default (tetap abu-abu muda) */
+            --body-bg: #edf2f8ff; /* Latar Belakang Konten default (tetap abu-abu muda) */
             --sidebar-width: 260px;
             --sidebar-collapsed-width: 80px; /* Lebar saat ciut */
             --header-height: 65px; /* Ketinggian Header Bar */

@@ -5,7 +5,7 @@
 @section('content')
 <div class="min-vh-100 pb-5">
     {{-- Header Formulir (Gaya RME Sesuai Layout) --}}
-    <div class="header-maroon text-white py-4 shadow">
+    <div class="text-white py-4 shadow" style="background-color:#6a1a1a;">
         <div class="container-fluid px-4 px-lg-5">
             <div class="d-flex align-items-center">
                 <i class="fas fa-cash-register fs-1 me-3"></i>
