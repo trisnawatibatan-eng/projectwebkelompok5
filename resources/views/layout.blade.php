@@ -168,6 +168,8 @@
         .page-content-wrapper {
             padding: 30px; 
             padding-top: 0;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         /* Mengubah warna teks 'Admin' di header menjadi maroon */
