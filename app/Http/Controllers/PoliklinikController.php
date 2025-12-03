@@ -129,8 +129,8 @@ class PoliklinikController extends Controller
      */
     public function kunjungan()
     {
-        // Ambil pemeriksaan terbaru, batasi 50 terakhir
-        $kunjungan = Pemeriksaan::orderBy('created_at', 'desc')->limit(50)->get();
+        // Ambil pemeriksaan terbaru, gunakan pagination (15 per halaman)
+        $kunjungan = Pemeriksaan::orderBy('created_at', 'desc')->paginate(15);
 
         return view('poliklinik.kunjungan', compact('kunjungan'));
     }

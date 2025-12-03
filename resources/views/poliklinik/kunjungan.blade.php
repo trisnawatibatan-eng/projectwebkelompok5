@@ -25,19 +25,24 @@
                 <tbody>
                     @foreach($kunjungan as $k)
                         <tr>
-                            <td>{{ $k->id }}</td>
+                            <td>{{ $kunjungan->firstItem() + $loop->index }}</td>
                             <td>{{ $k->no_rm }}</td>
                             <td>{{ $k->nama }}</td>
                             <td>
-                                <strong>Keluhan:</strong> {{ Str::limit($k->keluhan_utama ?? '-', 80) }}<br>
-                                <strong>Diagnosa:</strong> {{ Str::limit($k->diagnosa ?? '-', 80) }}
+                                <strong>Keluhan:</strong> {{ \Illuminate\Support\Str::limit($k->keluhan_utama ?? '-', 80) }}<br>
+                                <strong>Diagnosa:</strong> {{ \Illuminate\Support\Str::limit($k->diagnosa ?? '-', 80) }}
                             </td>
-                            <td>{{ Str::limit($k->terapi ?? '-', 60) }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($k->terapi ?? '-', 60) }}</td>
                             <td>{{ $k->created_at->format('Y-m-d H:i') }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+
+            {{-- Pagination links --}}
+            <div class="d-flex justify-content-center">
+                {{ $kunjungan->links() }}
+            </div>
         </div>
     @endif
 </div>
