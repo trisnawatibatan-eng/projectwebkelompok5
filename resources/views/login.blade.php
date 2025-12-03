@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
+    <title>Masuk | puskesmas pratama </title>
+=======
     <title>Masuk | Klinik Pratama </title>
+>>>>>>> 11bccf8044af91ebe2a4c4a8a43ef8dbcff3f976
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -12,7 +16,11 @@
             /* Warna Primer diubah menjadi Maroon */
             --primary-maroon: #800000; 
             --primary-shadow: rgba(128, 0, 0, 0.5); /* Shadow untuk Maroon */
+<<<<<<< HEAD
+            --bg-start: #f8f9fa; /* Light Grayish */
+=======
             --bg-start: #fbfbfbff; /* Light Grayish */
+>>>>>>> 11bccf8044af91ebe2a4c4a8a43ef8dbcff3f976
             --bg-end: #ffffff;
         }
         body {
