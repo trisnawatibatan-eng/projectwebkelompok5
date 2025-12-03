@@ -134,4 +134,54 @@ class PoliklinikController extends Controller
 
         return view('poliklinik.kunjungan', compact('kunjungan'));
     }
+
+    /**
+     * Tampilkan formulir edit untuk satu kunjungan/pemeriksaan.
+     */
+    public function editKunjungan($id)
+    {
+        $p = Pemeriksaan::findOrFail($id);
+        return view('poliklinik.edit_kunjungan', ['pemeriksaan' => $p]);
+    }
+
+    /**
+     * Update data pemeriksaan.
+     */
+    public function updateKunjungan(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'keluhan_utama' => 'required|string',
+            'diagnosa' => 'required|string',
+            'terapi' => 'nullable|string',
+            'suhu' => 'nullable|numeric',
+            'td' => 'nullable|string',
+            'nadi' => 'nullable|integer',
+            'rr' => 'nullable|integer',
+            'rujukan' => 'nullable|string',
+        ]);
+
+        $p = Pemeriksaan::findOrFail($id);
+        $p->keluhan_utama = $validated['keluhan_utama'];
+        $p->diagnosa = $validated['diagnosa'];
+        $p->terapi = $validated['terapi'] ?? null;
+        $p->suhu = $validated['suhu'] ?? null;
+        $p->tekanan_darah = $validated['td'] ?? null;
+        $p->nadi = $validated['nadi'] ?? null;
+        $p->respirasi = $validated['rr'] ?? null;
+        $p->rujukan = $validated['rujukan'] ?? null;
+        $p->save();
+
+        return redirect()->route('kunjungan.index')->with('success', 'Data kunjungan berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus satu kunjungan/pemeriksaan.
+     */
+    public function destroyKunjungan($id)
+    {
+        $p = Pemeriksaan::findOrFail($id);
+        $p->delete();
+
+        return redirect()->route('kunjungan.index')->with('success', 'Kunjungan berhasil dihapus.');
+    }
 }

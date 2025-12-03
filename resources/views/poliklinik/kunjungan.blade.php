@@ -25,7 +25,7 @@
                 <tbody>
                     @foreach($kunjungan as $k)
                         <tr>
-                            <td>{{ $kunjungan->firstItem() + $loop->index }}</td>
+                                <td>{{ $kunjungan->firstItem() + $loop->index }}</td>
                             <td>{{ $k->no_rm }}</td>
                             <td>{{ $k->nama }}</td>
                             <td>
@@ -33,7 +33,16 @@
                                 <strong>Diagnosa:</strong> {{ \Illuminate\Support\Str::limit($k->diagnosa ?? '-', 80) }}
                             </td>
                             <td>{{ \Illuminate\Support\Str::limit($k->terapi ?? '-', 60) }}</td>
-                            <td>{{ $k->created_at->format('Y-m-d H:i') }}</td>
+                                <td>{{ $k->created_at->format('Y-m-d H:i') }}</td>
+                                <td class="text-end">
+                                    <a href="{{ route('kunjungan.edit', $k->id) }}" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+
+                                    <form method="POST" action="{{ route('kunjungan.destroy', $k->id) }}" style="display:inline" onsubmit="return confirm('Yakin ingin menghapus kunjungan ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger">Hapus</button>
+                                    </form>
+                                </td>
                         </tr>
                     @endforeach
                 </tbody>
