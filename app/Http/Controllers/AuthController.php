@@ -10,39 +10,37 @@ class AuthController extends Controller
     // Tampilkan halaman login
     public function showLogin()
     {
-        // Jika sudah login, langsung redirect ke dashboard
-        if (Auth::check()) {
-            return redirect()->route('dashboard');
-        }
         return view('login', ['title' => 'Login']);
     }
 
     // Proses login
     public function login(Request $request)
     {
-        // 1. Validasi input: Memastikan inputan adalah email yang valid
+        // 1. Validasi input
         $credentials = $request->validate([
-            'username' => 'required|email', // Memaksa inputan harus berupa email yang valid
-            'password' => 'required|string',
+            'username' => 'required|email', // Asumsi username adalah email
+            'password' => 'required',
         ]);
-        
-        // Mencoba login menggunakan kolom 'email' (karena divalidasi sebagai email)
+
+        // PENTING: Gunakan fitur otentikasi database Laravel
+        // Kita mencoba login menggunakan email dan password yang diberikan
         if (Auth::attempt(['email' => $request->username, 'password' => $request->password])) {
             
-            // PENTING: Re-generate session untuk keamanan
+            // Re-generate session untuk mencegah session fixation attacks
             $request->session()->regenerate();
             
+            // Ambil user yang baru login
             $user = Auth::user();
 
-            // >>> Logic session custom session(['user_id' => ...]) telah dihapus.
-            // >>> Kita hanya bergantung pada Auth::check() untuk verifikasi sesi.
+            // Simpan data user ke session (opsional, jika Anda menggunakan fitur checksession custom)
+            session(['user_id' => $user->id, 'user_role' => $user->role]);
 
-            // Redirect berdasarkan peran (disarankan)
+            // Redirect berdasarkan peran (opsional, tapi disarankan)
             if ($user->role === 'admin') {
                 return redirect()->route('dashboard')->with('success', '✅ Selamat datang Admin!');
             }
+            // Pengguna lain akan diarahkan oleh middleware CheckRole
             
-            // Default redirect untuk semua pengguna yang berhasil login
             return redirect()->route('dashboard')->with('success', '✅ Login berhasil!');
         }
 
@@ -53,15 +51,14 @@ class AuthController extends Controller
     // Logout
     public function logout(Request $request)
     {
-        // 1. Logout dari Auth Facade
+        // Logout dari Auth Facade
         Auth::logout();
 
-        // 2. Hapus semua data session dan regenerate CSRF token
+        // Hapus semua data session dan regenerate CSRF token
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        // 3. Hapus session custom lama (jika ada)
-        session()->forget('user'); // Hapus sisa session lama
+        // Hapus session custom Anda (jika digunakan)
         session()->forget('user_id');
         session()->forget('user_role');
 

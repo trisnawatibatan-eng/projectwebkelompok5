@@ -27,14 +27,9 @@ class CheckRole
         // Fungsi in_array akan memeriksa role user ('pendaftaran', 'dokter', dll.)
         // apakah termasuk dalam array $roles yang dilewatkan dari route.
         if (!in_array($user->role, $roles)) {
-            // Jika peran tidak diizinkan, arahkan ke halaman 'home'
-            // atau tampilkan pesan error 403 (Unauthorized)
             
-            // Anda bisa mengarahkan ke halaman 403
-            // abort(403, 'Akses Ditolak. Anda tidak memiliki izin untuk halaman ini.');
-            
-            // Atau mengarahkan ke halaman default (dashboard/home)
-            return redirect('/home')->with('error', 'Akses Ditolak. Peran Anda tidak memiliki izin.');
+            // PERBAIKAN: Arahkan ke route dashboard yang sudah terdefinisi jika akses ditolak
+            return redirect()->route('dashboard')->with('error', 'Akses Ditolak. Peran Anda (' . $user->role . ') tidak memiliki izin untuk mengakses halaman tersebut.');
         }
 
         // 3. Lanjutkan request jika peran diizinkan

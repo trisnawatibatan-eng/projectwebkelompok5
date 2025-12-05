@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pasien;
-// PENTING: Hapus komentar jika Model Antrian sudah dibuat:
-// use App\Models\Antrian; 
+use App\Models\Kunjungan;
 
 class PasienController extends Controller
 {
@@ -33,32 +32,28 @@ class PasienController extends Controller
     }
 
     /**
-     * Simpan pasien baru + generate No RM otomatis, dan buat Antrian.
+     * Simpan pasien baru + generate No RM otomatis
      */
     public function store(Request $request)
     {
-        // PENTING: Validasi Nama dan No Asuransi secara kondisional
         $validated = $request->validate([
             'nik' => 'required|unique:pasiens,nik',
             'nama' => 'required',
             'alamat' => 'required',
-            'jenis_kelamin' => 'required|in:L,P', 
+            'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'required|date',
             'no_telepon' => 'required',
             
-            // Data Alamat & Penjamin
+            // Data tambahan dari form pendaftaran pasien baru (Wajib divalidasi)
             'provinsi' => 'required',
             'kota' => 'required',
             'kecamatan' => 'required',
-            'penjamin' => 'required|in:Umum,Asuransi', // Hanya izinkan Umum atau Asuransi
+            'penjamin' => 'required',
             'poliklinik_tujuan' => 'required', 
             'tanggal_kunjungan' => 'required|date',
+            'no_bpjs' => 'nullable|max:13',
             
-            // Kolom Asuransi (Divalidasi sebagai required jika penjamin == 'Asuransi')
-            'nama_asuransi' => 'nullable|string|required_if:penjamin,Asuransi',
-            'no_asuransi' => 'nullable|string|required_if:penjamin,Asuransi',
-            
-            // Kolom Opsional Lainnya
+            // Kolom opsional yang mungkin ada di form
             'email' => 'nullable|email',
             'agama' => 'nullable|string',
             'status_keluarga' => 'nullable|string',
@@ -66,49 +61,71 @@ class PasienController extends Controller
             'pekerjaan' => 'nullable|string',
         ]);
         
-        // 1. Membersihkan dan Mempersiapkan Data Pasien
+        // Atur agar NIK dan No BPJS menjadi nullable jika tidak diisi
+        $validated['nik'] = $validated['nik'] ?? null;
+        $validated['no_bpjs'] = $validated['no_bpjs'] ?? null;
         
-        // JIKA BUKAN ASURANSI, SET KOLOM ASURANSI MENJADI NULL (PENTING untuk database)
-        if ($validated['penjamin'] !== 'Asuransi') {
-            $validated['nama_asuransi'] = null;
-            $validated['no_asuransi'] = null;
-        }
-
-        // Generate No RM otomatis: RM00001, RM00002, dst
+        // 1. Generate No RM otomatis: RM00001, RM00002, dst
         $lastPasien = Pasien::orderBy('id', 'desc')->first();
         $nextId = $lastPasien ? $lastPasien->id + 1 : 1;
         $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
         $validated['no_rm'] = $no_rm;
-        
-        // Filter data untuk tabel 'pasiens' (pastikan kolom NIK, Asuransi, dll. ada di Model/Migrasi Pasien)
+
+        // Map short gender values (L/P) to DB enum values (Laki-laki/Perempuan)
+        if (isset($validated['jenis_kelamin'])) {
+            $validated['jenis_kelamin'] = $validated['jenis_kelamin'] === 'L'
+                ? 'Laki-laki'
+                : ($validated['jenis_kelamin'] === 'P' ? 'Perempuan' : $validated['jenis_kelamin']);
+        }
+
+        // --- PERBAIKAN: Pisahkan data Pasien dari data Antrian ---
         $pasienData = array_filter($validated, function($key) {
-            // Kolom-kolom yang ada di formulir pasien baru DAN harus masuk ke tabel `pasiens`
+            // Filter kolom yang disimpan ke tabel 'pasiens'
             return in_array($key, [
                 'nik', 'no_rm', 'nama', 'alamat', 'jenis_kelamin', 'tanggal_lahir', 
                 'no_telepon', 'email', 'agama', 'status_keluarga', 'golongan_darah', 
-                'pekerjaan', 'provinsi', 'kota', 'kecamatan', 'nama_asuransi', 'no_asuransi' 
+                'pekerjaan', 'provinsi', 'kota', 'kecamatan', 'no_bpjs'
             ]);
         }, ARRAY_FILTER_USE_KEY);
 
+        // Pastikan kolom 'alamat' lengkap, gabungkan kecamatan/kota jika perlu (tergantung kebutuhan tampilan)
         $pasien = Pasien::create($pasienData);
 
         // 2. LOGIC ANTRIAN BARU
+        // Dapatkan ID pasien yang baru dibuat
         $pasien_id = $pasien->id; 
 
+        // Tentukan data antrian
         $dataAntrian = [
             'pasien_id' => $pasien_id,
             'poli_tujuan' => $validated['poliklinik_tujuan'],
             'tanggal_kunjungan' => $validated['tanggal_kunjungan'],
             'penjamin' => $validated['penjamin'],
             'status' => 'Menunggu', 
-            // Tambahkan kolom nomor_antrian yang dihitung di sini
         ];
 
-        // *** PENTING: Hapus komentar di bawah ini setelah Model Antrian Anda siap ***
-        // Antrian::create($dataAntrian);
+        // Tentukan slug poli dari nilai pilihan (sederhanakan ke 'umum','gigi','kia')
+        $poliInput = strtolower($dataAntrian['poli_tujuan']);
+        if (str_contains($poliInput, 'gigi')) {
+            $poliSlug = 'gigi';
+        } elseif (str_contains($poliInput, 'kia') || str_contains($poliInput, 'kb')) {
+            $poliSlug = 'kia';
+        } else {
+            $poliSlug = 'umum';
+        }
+
+        // Simpan kunjungan/entry antrian ke tabel kunjungans
+        Kunjungan::create([
+            'pasien_id' => $dataAntrian['pasien_id'],
+            'poli_slug' => $poliSlug,
+            'tanggal_kunjungan' => $dataAntrian['tanggal_kunjungan'],
+            'penjamin' => $dataAntrian['penjamin'],
+            'status' => $dataAntrian['status'],
+        ]);
 
         // 3. Redirect
-        return redirect()->route('data.master')
+        return redirect()->route('kunjungan.index')
             ->with('success', 'Pasien baru berhasil didaftarkan dan masuk antrian ' . $validated['poliklinik_tujuan'] . '! No RM: ' . $no_rm);
     }
 
@@ -185,6 +202,15 @@ class PasienController extends Controller
     public function update(Request $request, $id)
     {
         $pasien = Pasien::findOrFail($id);
+        // Terima masukan lengkap ('Laki-laki'/'Perempuan') dari form edit,
+        // konversi ke singkatan agar validasi tetap bekerja (L/P)
+        if ($request->has('jenis_kelamin')) {
+            if ($request->input('jenis_kelamin') === 'Laki-laki') {
+                $request->merge(['jenis_kelamin' => 'L']);
+            } elseif ($request->input('jenis_kelamin') === 'Perempuan') {
+                $request->merge(['jenis_kelamin' => 'P']);
+            }
+        }
 
         $validated = $request->validate([
             'nik' => 'required|unique:pasiens,nik,' . $id,
@@ -195,6 +221,13 @@ class PasienController extends Controller
             'tanggal_lahir' => 'required|date',
             'no_telepon' => 'required'
         ]);
+
+        // Map short gender values (L/P) to DB enum values (Laki-laki/Perempuan)
+        if (isset($validated['jenis_kelamin'])) {
+            $validated['jenis_kelamin'] = $validated['jenis_kelamin'] === 'L'
+                ? 'Laki-laki'
+                : ($validated['jenis_kelamin'] === 'P' ? 'Perempuan' : $validated['jenis_kelamin']);
+        }
 
         $pasien->update($validated);
 

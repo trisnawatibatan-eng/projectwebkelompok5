@@ -252,6 +252,15 @@
                 <span class="ms-3">Poliklinik</span>
             </a>
             @endif
+
+            {{-- DAFTAR KUNJUNGAN (Antrian) --}}
+            @if (in_array($userRole, ['admin', 'pendaftaran', 'dokter']))
+            <a href="{{ route('kunjungan.index') }}" 
+                class="nav-link d-flex align-items-center {{ request()->routeIs('kunjungan.index') ? 'active' : '' }}">
+                <i class="bi bi-list-check"></i>
+                <span class="ms-3">Daftar Kunjungan</span>
+            </a>
+            @endif
             
             {{-- AKSES KASIR & ADMIN --}}
             @if (in_array($userRole, ['admin', 'kasir']))
