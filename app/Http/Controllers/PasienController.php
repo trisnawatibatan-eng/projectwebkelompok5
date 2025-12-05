@@ -61,24 +61,22 @@ class PasienController extends Controller
             'pekerjaan' => 'nullable|string',
         ]);
         
+        // Konversi jenis_kelamin dari L/P menjadi Laki-laki/Perempuan untuk enum
+        $validated['jenis_kelamin'] = $validated['jenis_kelamin'] === 'L' ? 'Laki-laki' : 'Perempuan';
+        
         // Atur agar NIK dan No BPJS menjadi nullable jika tidak diisi
         $validated['nik'] = $validated['nik'] ?? null;
         $validated['no_bpjs'] = $validated['no_bpjs'] ?? null;
         
+>>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
         // 1. Generate No RM otomatis: RM00001, RM00002, dst
         $lastPasien = Pasien::orderBy('id', 'desc')->first();
         $nextId = $lastPasien ? $lastPasien->id + 1 : 1;
         $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         $validated['no_rm'] = $no_rm;
-
-        // Map short gender values (L/P) to DB enum values (Laki-laki/Perempuan)
-        if (isset($validated['jenis_kelamin'])) {
-            $validated['jenis_kelamin'] = $validated['jenis_kelamin'] === 'L'
-                ? 'Laki-laki'
-                : ($validated['jenis_kelamin'] === 'P' ? 'Perempuan' : $validated['jenis_kelamin']);
-        }
-
+        
+>>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
         // --- PERBAIKAN: Pisahkan data Pasien dari data Antrian ---
         $pasienData = array_filter($validated, function($key) {
             // Filter kolom yang disimpan ke tabel 'pasiens'
@@ -105,25 +103,10 @@ class PasienController extends Controller
             'status' => 'Menunggu', 
         ];
 
-        // Tentukan slug poli dari nilai pilihan (sederhanakan ke 'umum','gigi','kia')
-        $poliInput = strtolower($dataAntrian['poli_tujuan']);
-        if (str_contains($poliInput, 'gigi')) {
-            $poliSlug = 'gigi';
-        } elseif (str_contains($poliInput, 'kia') || str_contains($poliInput, 'kb')) {
-            $poliSlug = 'kia';
-        } else {
-            $poliSlug = 'umum';
-        }
-
-        // Simpan kunjungan/entry antrian ke tabel kunjungans
-        Kunjungan::create([
-            'pasien_id' => $dataAntrian['pasien_id'],
-            'poli_slug' => $poliSlug,
-            'tanggal_kunjungan' => $dataAntrian['tanggal_kunjungan'],
-            'penjamin' => $dataAntrian['penjamin'],
-            'status' => $dataAntrian['status'],
-        ]);
-
+        // *** PENTING: Hapus komentar di bawah ini setelah Model Antrian Anda siap ***
+        // Antrian::create($dataAntrian); // <--- Baris ini yang akan menyimpan data antrian
+        
+>>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
         // 3. Redirect
         return redirect()->route('kunjungan.index')
             ->with('success', 'Pasien baru berhasil didaftarkan dan masuk antrian ' . $validated['poliklinik_tujuan'] . '! No RM: ' . $no_rm);

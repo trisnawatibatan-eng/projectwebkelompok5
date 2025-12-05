@@ -168,6 +168,8 @@
         .page-content-wrapper {
             padding: 30px; 
             padding-top: 0;
+            max-width: 100%;
+            margin: 0;
         }
 
         /* Mengubah warna teks 'Admin' di header menjadi maroon */
@@ -250,6 +252,12 @@
                 class="nav-link d-flex align-items-center {{ request()->routeIs('poliklinik') ? 'active' : '' }}">
                 <i class="bi bi-hospital-fill"></i>
                 <span class="ms-3">Poliklinik</span>
+            </a>
+            {{-- Daftar Kunjungan (lihat riwayat pemeriksaan) --}}
+            <a href="{{ route('kunjungan.index') }}"
+                class="nav-link d-flex align-items-center {{ request()->routeIs('kunjungan.index') ? 'active' : '' }}">
+                <i class="bi bi-card-list"></i>
+                <span class="ms-3">Kunjungan</span>
             </a>
             @endif
 

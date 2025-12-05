@@ -4,8 +4,8 @@
 
 @section('content')
 {{-- Menghilangkan min-vh-100 dan py-5 pada kontainer utama, karena layout.blade.php sudah menanganinya. --}}
-<div class="container my-4"> 
-    <div class="card shadow-lg border-0 rounded-4">
+<div class="container-fluid px-4"> 
+    <div class="card shadow-lg border-0 rounded-4 mx-auto" style="max-width: 1300px;">
         
         {{-- CARD HEADER --}}
         <div class="card-header bg-maroon text-white p-4 rounded-top-4">

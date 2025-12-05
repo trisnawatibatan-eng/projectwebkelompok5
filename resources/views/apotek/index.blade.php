@@ -45,32 +45,24 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Contoh Baris Data -->
+                            @forelse ($reseps as $index => $resep)
                             <tr>
-                                <td>1</td>
-                                <td>AP-20251125-001</td>
-                                <td>25/11/2025</td>
-                                <td>Budi Santoso</td>
-                                <td>Rp 125.000</td>
-                                <td><span class="badge bg-success">Lunas</span></td>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $resep->no_resep }}</td>
+                                <td>{{ $resep->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $resep->pemeriksaan->nama ?? '-' }}</td>
+                                <td>Rp {{ number_format($resep->total_biaya, 0, ',', '.') }}</td>
+                                <td><span class="badge {{ $resep->status === 'Lunas' ? 'bg-success' : 'bg-warning text-dark' }}">{{ $resep->status }}</span></td>
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-info text-white me-1" title="Lihat Detail"><i class="bi bi-eye"></i></button>
                                     <button class="btn btn-sm btn-danger" title="Hapus"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td>2</td>
-                                <td>AP-20251125-002</td>
-                                <td>25/11/2025</td>
-                                <td>Siti Aisyah</td>
-                                <td>Rp 45.000</td>
-                                <td><span class="badge bg-warning text-dark">Pending</span></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-info text-white me-1" title="Lihat Detail"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-sm btn-danger" title="Hapus"><i class="bi bi-trash"></i></button>
-                                </td>
+                                <td colspan="7" class="text-center text-muted py-4">Belum ada resep yang disimpan</td>
                             </tr>
-                            <!-- Akhir Contoh Baris Data -->
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
