@@ -67,16 +67,14 @@ class PasienController extends Controller
         // Atur agar NIK dan No BPJS menjadi nullable jika tidak diisi
         $validated['nik'] = $validated['nik'] ?? null;
         $validated['no_bpjs'] = $validated['no_bpjs'] ?? null;
-        
->>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
+
         // 1. Generate No RM otomatis: RM00001, RM00002, dst
         $lastPasien = Pasien::orderBy('id', 'desc')->first();
         $nextId = $lastPasien ? $lastPasien->id + 1 : 1;
         $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         $validated['no_rm'] = $no_rm;
-        
->>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
+
         // --- PERBAIKAN: Pisahkan data Pasien dari data Antrian ---
         $pasienData = array_filter($validated, function($key) {
             // Filter kolom yang disimpan ke tabel 'pasiens'
@@ -106,7 +104,6 @@ class PasienController extends Controller
         // *** PENTING: Hapus komentar di bawah ini setelah Model Antrian Anda siap ***
         // Antrian::create($dataAntrian); // <--- Baris ini yang akan menyimpan data antrian
         
->>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
         // 3. Redirect
         return redirect()->route('kunjungan.index')
             ->with('success', 'Pasien baru berhasil didaftarkan dan masuk antrian ' . $validated['poliklinik_tujuan'] . '! No RM: ' . $no_rm);
