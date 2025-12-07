@@ -36,7 +36,6 @@ class AuthController extends Controller
 
             // Simpan data user ke session (PENTING: CheckSession middleware mengecek session('user'))
             session(['user' => $user, 'user_id' => $user->id, 'user_role' => $user->role]);
->>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
 
             // Redirect berdasarkan peran (opsional, tapi disarankan)
             if ($user->role === 'admin') {
@@ -64,7 +63,6 @@ class AuthController extends Controller
         // Hapus session custom Anda (jika digunakan)
 
         session()->forget(['user', 'user_id', 'user_role']);
->>>>>>> c90a6f4c342fd7c4f44581fffcb018bda2963b39
 
         return redirect()->route('login')->with('success', '✅ Anda berhasil logout.');
     }
