@@ -7,9 +7,9 @@ use App\Http\Controllers\{
     RegistrasiController,
     PemeriksaanController,
     PasienController,
-    FarmasiController,
-    KasirController
+    FarmasiController
 };
+use App\Tutorial\Controllers\KasirTutorialController;
 
 // Redirect ke login
 Route::get('/', fn() => redirect('/login'));
@@ -43,4 +43,4 @@ Route::get('/pemeriksaan/resume', [PemeriksaanController::class, 'resume'])->nam
 Route::get('/farmasi', [FarmasiController::class, 'resep'])->name('farmasi.resep');
 
 // === KASIR ===
-Route::get('/kasir', [KasirController::class, 'pembayaran'])->name('kasir.pembayaran');
+Route::get('/kasir', [KasirTutorialController::class, 'pembayaran'])->name('kasir.pembayaran');

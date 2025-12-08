@@ -16,43 +16,53 @@ class UserSeeder extends Seeder
     public function run()
     {
         // 1. Akun Admin Utama
-        User::create([
-            'name' => 'Admin Utama Klinik',
-            'email' => 'admin@klinik.com',
-            'password' => Hash::make('admin123'), // Password: admin123
-            'role' => 'admin', 
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@klinik.com'],
+            [
+                'name' => 'Admin Utama Klinik',
+                'password' => Hash::make('admin123'), // Password: admin123
+                'role' => 'admin',
+            ]
+        );
 
         // 2. Akun Petugas Pendaftaran
-        User::create([
-            'name' => 'Petugas Pendaftaran',
-            'email' => 'pendaftaran@klinik.com',
-            'password' => Hash::make('123456'), // Password: 123456
-            'role' => 'pendaftaran', 
-        ]);
+        User::updateOrCreate(
+            ['email' => 'pendaftaran@klinik.com'],
+            [
+                'name' => 'Petugas Pendaftaran',
+                'password' => Hash::make('123456'), // Password: 123456
+                'role' => 'pendaftaran',
+            ]
+        );
 
         // 3. Akun Dokter (Diperbaiki: menggunakan role 'dokter')
-        User::create([
-            'name' => 'Dr. Umum/Gigi',
-            'email' => 'dokter@klinik.com',
-            'password' => Hash::make('123456'),
-            'role' => 'dokter', 
-        ]);
+        User::updateOrCreate(
+            ['email' => 'dokter@klinik.com'],
+            [
+                'name' => 'Dr. Umum/Gigi',
+                'password' => Hash::make('123456'),
+                'role' => 'dokter',
+            ]
+        );
         
         // 4. Akun Petugas Apotek
-        User::create([
-            'name' => 'Petugas Apotek',
-            'email' => 'apotek@klinik.com',
-            'password' => Hash::make('123456'),
-            'role' => 'apotek', 
-        ]);
+        User::updateOrCreate(
+            ['email' => 'apotek@klinik.com'],
+            [
+                'name' => 'Petugas Apotek',
+                'password' => Hash::make('123456'),
+                'role' => 'perawat',
+            ]
+        );
         
         // 5. Akun Kasir (Untuk melengkapi peran yang ada di migrasi)
-        User::create([
-            'name' => 'Petugas Kasir',
-            'email' => 'kasir@klinik.com',
-            'password' => Hash::make('123456'),
-            'role' => 'kasir', 
-        ]);
+        User::updateOrCreate(
+            ['email' => 'kasir@klinik.com'],
+            [
+                'name' => 'Petugas Kasir',
+                'password' => Hash::make('123456'),
+                'role' => 'kasir',
+            ]
+        );
     }
 }

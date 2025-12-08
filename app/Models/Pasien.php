@@ -20,4 +20,10 @@ class Pasien extends Model
         'tanggal_lahir',
         'no_telepon',
     ];
+
+    // Relasi ke Kunjungan
+    public function kunjungans()
+    {
+        return $this->hasMany(Kunjungan::class, 'pasien_id');
+    }
 } 

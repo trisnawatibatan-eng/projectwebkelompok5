@@ -13,6 +13,11 @@
 </div>
 
 <div class="container">
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ route('poliklinik.daftar_kunjungan') }}" class="btn btn-primary">
+            <i class="fas fa-list"></i> Daftar Kunjungan
+        </a>
+    </div>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center">
         
         {{-- 1. Poli Umum (Biru) --}}

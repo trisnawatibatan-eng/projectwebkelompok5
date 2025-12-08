@@ -210,6 +210,16 @@
                                 </div>
                             </div>
                             
+                            <!-- Keluhan Utama (Akan disimpan ke Kunjungan) -->
+                            <div class="mb-5">
+                                <label class="form-label fw-semibold">Keluhan Utama <span class="text-maroon">*</span></label>
+                                <textarea name="keluhan_utama" rows="3" class="form-control form-control-lg rounded-3 @error('keluhan_utama') is-invalid-maroon @enderror" 
+                                            placeholder="Jelaskan keluhan atau alasan pasien datang ke klinik" required>{{ old('keluhan_utama') }}</textarea>
+                                @error('keluhan_utama')
+                                    <div class="invalid-feedback-maroon">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
                             <!-- Catatan Tambahan (Full Width) -->
                             <div class="mb-5">
                                 <label class="form-label fw-semibold">Catatan Tambahan</label>

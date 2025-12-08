@@ -16,14 +16,15 @@ class AuthController extends Controller
     // Proses login
     public function login(Request $request)
     {
-        // 1. Validasi input
+        // 1. Validasi input (username/email dan password)
         $credentials = $request->validate([
-            'username' => 'required|email', // Asumsi username adalah email
+            'username' => 'required|string', // Terima username sebagai string (bisa email atau username)
             'password' => 'required',
         ]);
 
-        // PENTING: Gunakan fitur otentikasi database Laravel
-        // Kita mencoba login menggunakan email dan password yang diberikan
+        // 2. Coba login menggunakan email field (karena database users hanya punya email, bukan username)
+        // Jika pengguna mengirim email address, gunakan langsung; jika bukan, asumsikan sebagai email juga
+
         if (Auth::attempt(['email' => $request->username, 'password' => $request->password])) {
             
             // Re-generate session untuk mencegah session fixation attacks
@@ -32,8 +33,10 @@ class AuthController extends Controller
             // Ambil user yang baru login
             $user = Auth::user();
 
-            // Simpan data user ke session (opsional, jika Anda menggunakan fitur checksession custom)
-            session(['user_id' => $user->id, 'user_role' => $user->role]);
+
+            // Simpan data user ke session (PENTING: CheckSession middleware mengecek session('user'))
+            session(['user' => $user, 'user_id' => $user->id, 'user_role' => $user->role]);
+
 
             // Redirect berdasarkan peran (opsional, tapi disarankan)
             if ($user->role === 'admin') {
@@ -59,8 +62,9 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         
         // Hapus session custom Anda (jika digunakan)
-        session()->forget('user_id');
-        session()->forget('user_role');
+
+        session()->forget(['user', 'user_id', 'user_role']);
+
 
         return redirect()->route('login')->with('success', '✅ Anda berhasil logout.');
     }

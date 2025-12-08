@@ -4,9 +4,9 @@
 
 @section('content')
 {{-- PENTING: Hapus container my-4, gunakan container-fluid agar sesuai layout terbaru --}}
-<div class="container-fluid px-0"> 
+<div class="container-fluid px-4"> 
     {{-- Card di tengah halaman dengan lebar maksimum 1200px dan margin-top kompensasi --}}
-    <div class="card shadow-lg border-0 rounded-4 mx-auto mb-5" style="max-width: 1200px;">
+    <div class="card shadow-lg border-0 rounded-4 mx-auto mb-5" style="max-width: 1300px; margin-left: auto; margin-right: auto;">
         
         {{-- CARD HEADER --}}
         <div class="card-header bg-maroon text-white p-4 rounded-top-4">

@@ -4,9 +4,9 @@
 
 @section('content')
 {{-- PENTING: Gunakan container-fluid tanpa padding vertikal, biarkan layout yang mengatur kompensasi padding-top --}}
-<div class="container-fluid"> 
-    {{-- Card di tengah halaman dengan lebar maksimum 1200px --}}
-    <div class="card shadow-lg border-0 rounded-4 mx-auto mb-5" style="max-width: 1200px;">
+<div class="container-fluid px-4"> 
+    {{-- Card di tengah halaman dengan lebar maksimum 1300px --}}
+    <div class="card shadow-lg border-0 rounded-4 mx-auto mb-5" style="max-width: 1300px;">
         
         {{-- HEADER FORMULIR --}}
         <div class="card-header bg-maroon text-white p-4 rounded-top-4">

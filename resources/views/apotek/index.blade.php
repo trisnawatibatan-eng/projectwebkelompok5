@@ -17,75 +17,96 @@
             </div>
             <div class="card-body">
                 
-                <!-- Area Pencarian dan Filter -->
-                <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <input type="text" class="form-control me-2" placeholder="Cari No. Resep, Pasien, atau Tgl Transaksi...">
-                        <button class="btn btn-outline-secondary">
-                            <i class="bi bi-search"></i>
-                        </button>
+                @if ($message = session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i> {{ $message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <button class="btn btn-outline-info">
-                        <i class="bi bi-funnel"></i> Filter
-                    </button>
-                </div>
+                @endif
 
-                <!-- Tabel Daftar Transaksi (Placeholder) -->
+                @if ($message = session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i> {{ $message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <!-- Tabel Daftar Resep Pending/Ready -->
                 <div class="table-responsive">
                     <table class="table table-hover table-striped table-bordered">
                         <thead class="bg-light">
                             <tr>
                                 <th>#</th>
-                                <th>No. Resep/ID</th>
+                                <th>No. Resep</th>
                                 <th>Tanggal</th>
                                 <th>Nama Pasien</th>
-                                <th>Total Bayar</th>
+                                <th>Obat (Qty)</th>
+                                <th>Total Rp</th>
                                 <th>Status</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Contoh Baris Data -->
+                            @forelse ($reseps as $index => $resep)
                             <tr>
-                                <td>1</td>
-                                <td>AP-20251125-001</td>
-                                <td>25/11/2025</td>
-                                <td>Budi Santoso</td>
-                                <td>Rp 125.000</td>
-                                <td><span class="badge bg-success">Lunas</span></td>
+                                <td>{{ $index + 1 }}</td>
+                                <td><strong>{{ $resep->no_resep }}</strong></td>
+                                <td>{{ $resep->created_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    @if ($resep->pemeriksaan && $resep->pemeriksaan->kunjungan)
+                                        {{ $resep->pemeriksaan->kunjungan->pasien->nama ?? '-' }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @php
+                                        $items = json_decode($resep->items, true);
+                                        $itemList = [];
+                                        if (is_array($items)) {
+                                            foreach ($items as $item) {
+                                                $itemList[] = ($item['name'] ?? 'Obat') . ' (' . ($item['qty'] ?? 0) . ')';
+                                            }
+                                        }
+                                    @endphp
+                                    {{ implode(', ', $itemList) ?: '-' }}
+                                </td>
+                                <td>Rp {{ number_format($resep->total_biaya, 0, ',', '.') }}</td>
+                                <td>
+                                    @if ($resep->status === 'Pending')
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    @elseif ($resep->status === 'Ready')
+                                        <span class="badge bg-info">Siap Ambil</span>
+                                    @else
+                                        <span class="badge bg-success">Lunas</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-info text-white me-1" title="Lihat Detail"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-sm btn-danger" title="Hapus"><i class="bi bi-trash"></i></button>
+                                    @if ($resep->status === 'Pending')
+                                        <form action="{{ route('apotek.proses-resep', $resep->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success" title="Proses Resep">
+                                                <i class="bi bi-check-lg"></i> Proses
+                                            </button>
+                                        </form>
+                                    @elseif ($resep->status === 'Ready')
+                                        <a href="{{ route('kasir.pembayaran', ['resepId' => $resep->id]) }}" class="btn btn-sm btn-primary" title="Ke Kasir">
+                                            <i class="bi bi-arrow-right-square"></i> Ke Kasir
+                                        </a>
+                                    @else
+                                        <span class="text-success fw-bold">Sudah Lunas</span>
+                                    @endif
                                 </td>
                             </tr>
+                            @empty
                             <tr>
-                                <td>2</td>
-                                <td>AP-20251125-002</td>
-                                <td>25/11/2025</td>
-                                <td>Siti Aisyah</td>
-                                <td>Rp 45.000</td>
-                                <td><span class="badge bg-warning text-dark">Pending</span></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-info text-white me-1" title="Lihat Detail"><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-sm btn-danger" title="Hapus"><i class="bi bi-trash"></i></button>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox"></i> Belum ada resep untuk diproses
                                 </td>
                             </tr>
-                            <!-- Akhir Contoh Baris Data -->
+                            @endforelse
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Navigasi Halaman (Pagination) -->
-                <div class="d-flex justify-content-end mt-3">
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination pagination-sm">
-                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                        </ul>
-                    </nav>
                 </div>
 
             </div>

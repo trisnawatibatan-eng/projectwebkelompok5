@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Tutorial\Controllers;
 
 use Illuminate\Http\Request;
 
-class KasirController extends Controller
+class KasirTutorialController extends \App\Http\Controllers\Controller
 {
     public function pembayaran(Request $request)
     {
@@ -13,7 +13,7 @@ class KasirController extends Controller
             return redirect('/login')->withErrors(['login' => 'Silakan login terlebih dahulu!']);
         }
 
-        // Jika sudah login, tampilkan halaman pembayaran
+        // Jika sudah login, tampilkan halaman pembayaran (tutorial)
         return view('kasir.pembayaran');
     }
 }

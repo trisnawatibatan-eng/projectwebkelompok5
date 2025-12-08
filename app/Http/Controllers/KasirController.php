@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Digunakan untuk JOIN atau query kompleks
-
-// Asumsi Anda memiliki model Pasien, Pemeriksaan, dan Resep/Apotek
-// use App\Models\Pasien; 
-// use App\Models\Pemeriksaan;
-// use App\Models\Resep; 
+use App\Models\Resep;
+use App\Models\Pemeriksaan;
+use App\Models\Invoice; // Asumsi Anda punya model Invoice/Pembayaran
+use App\Models\Kunjungan; // Hanya untuk memastikan import lengkap jika diperlukan
 
 class KasirController extends Controller
 {
@@ -17,7 +15,12 @@ class KasirController extends Controller
      */
     public function index()
     {
-        return view('kasir.index');
+         // Ambil semua data resep + relasi pemeriksaan, kunjungan, dan pasien
+         // Relasi 'pemeriksaan.kunjungan.pasien' diasumsikan sudah diperbaiki
+         $reseps = Resep::with(['pemeriksaan.kunjungan.pasien'])->get();
+
+         // Kirim ke view
+         return view('kasir.index', compact('reseps'));
     }
 
     /**
@@ -27,73 +30,72 @@ class KasirController extends Controller
     public function cariTagihan(Request $request)
     {
         $query = $request->input('query');
-        
+
         if (strlen($query) < 2) {
             return response()->json([]);
         }
 
-        // --- PENTING: LOGIKA PENCARIAN TAGIHAN NYATA ---
-        /* * Dalam implementasi nyata, Anda akan:
-         * 1. Mencari Pasien/Pemeriksaan berdasarkan $query.
-         * 2. Filter hanya Pemeriksaan yang STATUS_BAYAR = 'Belum Lunas'.
-         * 3. JOIN dengan tabel Tindakan dan Resep untuk mengagregasi total tagihan.
-         * 4. Mengembalikan rincian dalam format yang sama dengan dummyTagihan di frontend.
-         */
+        // 🚨 Tambahkan logika pencarian tagihan di sini
+        // Contoh: Cari Resep atau Pemeriksaan berdasarkan No. RM atau ID
+        $tagihan = Resep::whereHas('pemeriksaan.kunjungan.pasien', function ($q) use ($query) {
+            $q->where('no_rm', 'like', "%{$query}%");
+        })
+        ->orWhere('pemeriksaan_id', $query)
+        ->get();
 
-        // Contoh Struktur Data Output (Sama persis dengan dummyTagihan di JS)
-        $tagihanBelumBayar = [
-            // Contoh data yang diambil dari database:
-            [
-                'id' => 1, // ID Pemeriksaan
-                'no_rm' => 'RM000002',
-                'nama_pasien' => 'Marlina Kan',
-                'poli' => 'Gigi & Mulut',
-                'tagihan_list' => [
-                    ['desc' => 'Jasa Dokter Poli Gigi', 'biaya' => 50000],
-                    ['desc' => 'Scaling & Polishing', 'biaya' => 150000],
-                    // Jika terintegrasi dengan Apotek, ambil item resep di sini:
-                    ['desc' => 'Resep Obat (Apotek)', 'biaya' => 25000],
-                ]
-            ],
-            // ... Tambahkan tagihan lain yang belum dibayar ...
-        ];
-
-        // Lakukan filter simulasi berdasarkan query (HAPUS SIMULASI INI DI APLIKASI NYATA)
-        $results = collect($tagihanBelumBayar)->filter(function($tagihan) use ($query) {
-            return str_contains(strtolower($tagihan['no_rm']), strtolower($query)) || 
-                   str_contains(strtolower($tagihan['nama_pasien']), strtolower($query));
-        })->values();
-
-        return response()->json($results);
+        return response()->json($tagihan);
     }
     
     /**
-     * Memproses penyimpanan pembayaran (POST).
-     * Dihubungkan ke frontend melalui route('kasir.bayar')
+     * 🟢 METODE YANG HILANG (createInvoice) 🟢
+     * Menangani proses pembuatan dan penyimpanan invoice/tagihan.
+     * Ini dipanggil dari route yang menyebabkan error sebelumnya.
      */
-    public function bayar(Request $request)
+    public function createInvoice(Request $request)
     {
-        // 1. Validasi Input
+        // 1. Validasi Input (ID Resep, Jumlah Bayar, Metode Pembayaran, dll.)
         $request->validate([
-            'pemeriksaan_id' => 'required|exists:pemeriksaan,id', // Pastikan ID pemeriksaan valid
-            'metode_pembayaran' => 'required|in:Tunai,Debit,Transfer',
+            'resep_id' => 'required|exists:reseps,id',
             'jumlah_bayar' => 'required|numeric|min:0',
-            // Total tagihan harus divalidasi juga (biasanya dikirim sebagai input hidden)
+            // ... validasi lain
         ]);
         
-        // 2. LOGIKA PEMBAYARAN NYATA
-        /*
-         * a. Ambil total tagihan dari database (berdasarkan pemeriksaan_id).
-         * b. Hitung kembalian dan pastikan jumlah_bayar >= total_tagihan.
-         * c. Catat transaksi pembayaran di tabel 'pembayaran'.
-         * d. Perbarui status di tabel 'pemeriksaan' (STATUS_BAYAR = 'Lunas').
-         */
+        $resepId = $request->input('resep_id');
+        $jumlahBayar = $request->input('jumlah_bayar');
 
-        // SIMULASI
-        $pemeriksaanId = $request->pemeriksaan_id;
+        // 2. Ambil data Resep dan hitung total tagihan
+        $resep = Resep::with(['pemeriksaan', 'detailObat'])->findOrFail($resepId);
         
-        // Redirect dengan sukses
-        return redirect()->route('dashboard') 
-            ->with('success', "Pembayaran untuk ID Pemeriksaan #{$pemeriksaanId} berhasil diproses!");
+        // 🚨 Logika perhitungan tagihan total 🚨
+        $biayaObat = $resep->detailObat->sum(function ($detail) {
+             return $detail->harga * $detail->jumlah;
+        });
+        
+        $biayaJasa = $resep->pemeriksaan->biaya_jasa ?? 0; // Asumsi kolom biaya_jasa ada di model Pemeriksaan
+        $totalTagihan = $biayaObat + $biayaJasa;
+
+        if ($jumlahBayar < $totalTagihan) {
+            return back()->with('error', 'Jumlah bayar kurang dari total tagihan.');
+        }
+
+        // 3. Simpan record Invoice/Pembayaran
+        $invoice = Invoice::create([
+            'resep_id' => $resepId,
+            'pemeriksaan_id' => $resep->pemeriksaan_id,
+            'total_tagihan' => $totalTagihan,
+            'jumlah_bayar' => $jumlahBayar,
+            'kembalian' => $jumlahBayar - $totalTagihan,
+            'status' => 'Lunas', // Atur status pembayaran
+            'tanggal_bayar' => now(),
+            'user_kasir_id' => auth()->id(), // Asumsi user kasir terautentikasi
+        ]);
+
+        // 4. Update status Resep/Pemeriksaan (opsional, tergantung alur Anda)
+        // $resep->status = 'Dibayar';
+        // $resep->save();
+        
+        // 5. Redirect atau kembalikan response
+        return redirect()->route('kasir.index')
+            ->with('success', '✅ Pembayaran dan Invoice berhasil dibuat! Total: ' . number_format($totalTagihan));
     }
 }

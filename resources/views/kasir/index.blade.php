@@ -1,40 +1,115 @@
 @extends('layout')
 
-@section('title', 'Kasir Pembayaran')
+@section('title', 'Kasir - Daftar Tagihan')
 
 @section('content')
 <div class="min-vh-100 pb-5">
-    {{-- Header Formulir (Gaya RME Sesuai Layout) --}}
     <div class="text-white py-4 shadow" style="background-color:#6a1a1a;">
         <div class="container-fluid px-4 px-lg-5">
             <div class="d-flex align-items-center">
                 <i class="fas fa-cash-register fs-1 me-3"></i>
-                <h3 class="mb-0 fw-bold">KASIR PEMBAYARAN TAGIHAN</h3>
+                <h3 class="mb-0 fw-bold">KASIR - DAFTAR TAGIHAN PASIEN</h3>
             </div>
         </div>
     </div>
 
     <div class="container-fluid px-4 px-lg-5 py-4">
-        <div class="row justify-content-center">
+        <div class="row">
             <div class="col-12">
+                @if ($message = session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i> {{ $message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
 
-                {{-- Alert Placeholder --}}
-                <div id="status_alert_container" class="mb-4">
-                    {{-- Pesan status sukses/error akan diinjeksi di sini --}}
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light border-bottom">
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt me-2"></i> Daftar Resep Siap Pembayaran
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped table-bordered">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>No. Resep</th>
+                                        <th>Tanggal</th>
+                                        <th>Nama Pasien</th>
+                                        <th>No RM</th>
+                                        <th>Obat</th>
+                                        <th>Total Tagihan</th>
+                                        <th>Status</th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($reseps as $index => $item)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td><strong>{{ $item->no_resep }}</strong></td>
+                                        <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
+                                        <td>
+                                            @if ($item->pemeriksaan && $item->pemeriksaan->kunjungan)
+                                                {{ $item->pemeriksaan->kunjungan->pasien->nama ?? '-' }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($item->pemeriksaan && $item->pemeriksaan->kunjungan)
+                                                {{ $item->pemeriksaan->kunjungan->pasien->no_rm ?? '-' }}
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $obats = json_decode($item->items, true);
+                                                $obatList = [];
+                                                if (is_array($obats)) {
+                                                    foreach ($obats as $obat) {
+                                                        $obatList[] = ($obat['name'] ?? 'Obat') . ' (' . ($obat['qty'] ?? 0) . ')';
+                                                    }
+                                                }
+                                            @endphp
+                                            {{ implode(', ', $obatList) ?: '-' }}
+                                        </td>
+                                        <td class="fw-bold text-danger">Rp {{ number_format($item->total_biaya, 0, ',', '.') }}</td>
+                                        <td>
+                                            @if ($item->status === 'Pending')
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            @elseif ($item->status === 'Ready')
+                                                <span class="badge bg-info">Siap Bayar</span>
+                                            @else
+                                                <span class="badge bg-success">Lunas</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ route('kasir.pembayaran', ['resepId' => $item->id]) }}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-eye"></i> Lihat
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted py-4">
+                                            <i class="bi bi-inbox"></i> Tidak ada tagihan yang perlu diproses
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                {{-- Card Form Utama --}}
-                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                    <div class="card-body p-4 p-md-5 p-lg-5">
-                        <form action="{{ route('kasir.bayar') }}" method="POST" id="form-pembayaran">
-                            @csrf
-                            <input type="hidden" name="pemeriksaan_id" id="pemeriksaan_id_input" value="">
-                            
-                            {{-- ============================================= --}}
-                            {{-- HEADER PASIEN & SEARCH BLOCK --}}
-                            {{-- ============================================= --}}
-                            <h5 class="text-maroon border-bottom border-maroon pb-2 mb-4 fw-bold">1. Cari Tagihan Pasien</h5>
-                            
                             <div class="row g-3 align-items-center mb-4">
                                 <div class="col-md-8">
                                     <input type="text" class="form-control form-control-lg rounded-3" id="search_tagihan_input" placeholder="Masukkan No. RM atau ID Pemeriksaan...">
@@ -332,7 +407,7 @@
                 `;
             });
             
-            totalTagihanDisplay.textContent = Rp ${formatRupiah(totalTagihan)};
+            totalTagihanDisplay.textContent = 'Rp ' + formatRupiah(totalTagihan);
             
             // 3. Aktifkan Pembayaran dan Tombol
             jumlahBayarInput.value = totalTagihan; // Isi otomatis jumlah tagihan
@@ -343,7 +418,7 @@
             prosesBayarBtn.disabled = false;
             cetakTagihanBtn.disabled = false;
 
-            resultsDiv.innerHTML = <div class="alert alert-success py-1 small mt-2" role="alert">Tagihan Pasien **${selectedTagihan.nama_pasien}** berhasil dimuat.</div>;
+            resultsDiv.innerHTML = `<div class="alert alert-success py-1 small mt-2" role="alert">Tagihan Pasien <strong>${selectedTagihan.nama_pasien}</strong> berhasil dimuat.</div>`;
         }
         
         // Fungsi Update Kembalian
@@ -352,7 +427,7 @@
             const bayar = parseFloat(jumlahBayarInput.value) || 0;
             const kembalian = bayar - totalTagihan;
             
-            kembalianDisplay.textContent = Rp ${formatRupiah(kembalian)};
+            kembalianDisplay.textContent = 'Rp ' + formatRupiah(kembalian);
 
             // Kunci tombol proses jika pembayaran kurang
             const isLunas = kembalian >= 0;
@@ -389,10 +464,10 @@
             } else {
                 // SweetAlert Konfirmasi Pembayaran
                 e.preventDefault();
-                 Swal.fire({
-                    title: 'Konfirmasi Pembayaran',
-                    html: Anda akan memproses pembayaran untuk tagihan sebesar <b>Rp ${formatRupiah(totalTagihan)}</b>. <br> Jumlah dibayar: <b>Rp ${formatRupiah(parseFloat(jumlahBayarInput.value))}</b>.,
-                    icon: 'warning',
+                      Swal.fire({
+                          title: 'Konfirmasi Pembayaran',
+                          html: `Anda akan memproses pembayaran untuk tagihan sebesar <b>Rp ${formatRupiah(totalTagihan)}</b>. <br> Jumlah dibayar: <b>Rp ${formatRupiah(parseFloat(jumlahBayarInput.value))}</b>.`,
+                          icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#800000', // Maroon
                     cancelButtonColor: '#6c757d', // Secondary
