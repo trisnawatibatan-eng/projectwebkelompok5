@@ -10,9 +10,15 @@ class ApotekController extends Controller
 {
     public function index()
     {
+<<<<<<< HEAD
         $reseps = Resep::with('pemeriksaan')->where('status', '!=', 'Paid')->latest()->get();
         return view('apotek.index', [
             'title' => 'Apotek - Daftar Resep',
+=======
+        $reseps = Resep::with('pemeriksaan')->latest()->get();
+        return view('apotek.index', [
+            'title' => 'Apotek - Daftar Transaksi',
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
             'reseps' => $reseps
         ]);
     }
@@ -24,10 +30,18 @@ class ApotekController extends Controller
     {
         $pemeriksaan_id = $request->query('pemeriksaan_id');
 
+<<<<<<< HEAD
+=======
+        // Jika tidak ada pemeriksaan_id, kembali ke daftar apotek dengan error
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
         if (!$pemeriksaan_id) {
             return redirect()->route('apotek.index')->with('error', 'ID pemeriksaan tidak ditemukan.');
         }
 
+<<<<<<< HEAD
+=======
+        // Ambil data pemeriksaan nyata dari tabel pemeriksaan
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
         $pemeriksaan = Pemeriksaan::find($pemeriksaan_id);
         if (!$pemeriksaan) {
             return redirect()->route('apotek.index')->with('error', 'Data pemeriksaan dengan ID #' . $pemeriksaan_id . ' tidak ditemukan.');
@@ -46,6 +60,7 @@ class ApotekController extends Controller
             'items' => 'nullable|array',
         ]);
 
+<<<<<<< HEAD
         $lastResep = Resep::orderBy('id', 'desc')->first();
         $nextId = $lastResep ? $lastResep->id + 1 : 1;
         $no_resep = 'RES-' . date('Ymd') . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
@@ -64,10 +79,25 @@ class ApotekController extends Controller
             'items' => json_encode($items),
             'total_biaya' => $total,
             'status' => 'Ready',
+=======
+        // Generate no resep otomatis
+        $lastResep = Resep::orderBy('id', 'desc')->first();
+        $nextId = $lastResep ? $lastResep->id + 1 : 1;
+        $no_resep = 'AP-' . date('Ymd') . '-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+        // Simpan resep ke database
+        $resep = Resep::create([
+            'pemeriksaan_id' => $validated['pemeriksaan_id'],
+            'no_resep' => $no_resep,
+            'items' => json_encode($validated['items'] ?? []),
+            'total_biaya' => 0,
+            'status' => 'Pending',
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
         ]);
 
         return redirect()->route('apotek.index')->with('success', 'Resep berhasil disimpan!');
     }
+<<<<<<< HEAD
 
     /**
      * Proses resep: ubah status dari Pending → Ready
@@ -80,4 +110,6 @@ class ApotekController extends Controller
         return redirect()->route('apotek.index')
             ->with('success', 'Resep ' . $resep->no_resep . ' sudah siap diambil. Pasien dapat ke Kasir untuk pembayaran.');
     }
+=======
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
 }

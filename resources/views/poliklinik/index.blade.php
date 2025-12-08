@@ -14,7 +14,11 @@
 
 <div class="container">
     <div class="d-flex justify-content-end mb-3">
+<<<<<<< HEAD
         <a href="{{ route('poliklinik.daftar_kunjungan') }}" class="btn btn-primary">
+=======
+        <a href="{{ route('kunjungan.index') }}" class="btn btn-outline-dark">
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
             <i class="fas fa-list"></i> Daftar Kunjungan
         </a>
     </div>

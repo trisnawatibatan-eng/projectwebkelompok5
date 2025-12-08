@@ -44,6 +44,7 @@ Route::middleware('checksession')->group(function () {
     // POLIKLINIK (DIKOREKSI: Penambahan Route Spesifik per Poli)
     // ===================================================================
     Route::get('/poliklinik', [PoliklinikController::class, 'index'])->name('poliklinik');
+<<<<<<< HEAD
     
     // ROUTE BARU UNTUK SUB-MENU DI SIDEBAR
     Route::get('/poliklinik/umum', [PoliklinikController::class, 'showPoliUmum'])->name('poliklinik.umum');
@@ -57,6 +58,8 @@ Route::middleware('checksession')->group(function () {
     Route::get('/poliklinik/kunjungan/{kunjunganId}/pemeriksaan', [PoliklinikController::class, 'pemeriksaanKunjungan'])->name('poliklinik.pemeriksaan_kunjungan');
     Route::post('/poliklinik/kunjungan/{kunjunganId}/simpan-pemeriksaan', [PoliklinikController::class, 'simpanPemeriksaanKunjungan'])->name('poliklinik.simpan_pemeriksaan_kunjungan');
     Route::get('/poliklinik/kunjungan/{kunjunganId}/periksa', [PoliklinikController::class, 'periksaKunjunganByPoli'])->name('poliklinik.periksa_by_poli');
+=======
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
     Route::get('/kunjungan', [PoliklinikController::class, 'kunjungan'])->name('kunjungan.index');
     Route::get('/kunjungan/{id}/edit', [PoliklinikController::class, 'editKunjungan'])->name('kunjungan.edit');
     Route::put('/kunjungan/{id}', [PoliklinikController::class, 'updateKunjungan'])->name('kunjungan.update');

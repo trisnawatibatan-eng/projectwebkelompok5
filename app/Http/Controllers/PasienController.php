@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pasien;
 use App\Models\Kunjungan;
+<<<<<<< HEAD
 
 // PENTING: Hapus komentar jika Model Antrian sudah dibuat:
 // use App\Models\Antrian; 
+=======
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
 
 
 class PasienController extends Controller
@@ -115,7 +118,10 @@ class PasienController extends Controller
         // Atur agar NIK dan No BPJS menjadi nullable jika tidak diisi
         $validated['nik'] = $validated['nik'] ?? null;
         $validated['no_bpjs'] = $validated['no_bpjs'] ?? null;
+<<<<<<< HEAD
         
+=======
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
 
         // 1. Generate No RM otomatis: RM00001, RM00002, dst
         $lastPasien = Pasien::orderBy('id', 'desc')->first();
@@ -123,7 +129,10 @@ class PasienController extends Controller
         $no_rm = 'RM' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         $validated['no_rm'] = $no_rm;
+<<<<<<< HEAD
         
+=======
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
 
         // --- PERBAIKAN: Pisahkan data Pasien dari data Antrian ---
         $pasienData = array_filter($validated, function($key) {

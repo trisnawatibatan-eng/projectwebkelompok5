@@ -4,7 +4,11 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between mb-3">
         <h3>Edit Kunjungan: {{ $pemeriksaan->nama }} ({{ $pemeriksaan->no_rm }})</h3>
+<<<<<<< HEAD
         <a href="{{ route('poliklinik.kunjungan') }}" class="btn btn-outline-secondary">Kembali</a>
+=======
+        <a href="{{ route('kunjungan.index') }}" class="btn btn-outline-secondary">Kembali</a>
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
     </div>
 
     <form method="POST" action="{{ route('kunjungan.update', $pemeriksaan->id) }}">
@@ -48,7 +52,11 @@
 
         <div class="d-flex gap-2">
             <button class="btn btn-primary">Simpan Perubahan</button>
+<<<<<<< HEAD
             <a href="{{ route('poliklinik.kunjungan') }}" class="btn btn-secondary">Batal</a>
+=======
+            <a href="{{ route('kunjungan.index') }}" class="btn btn-secondary">Batal</a>
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
         </div>
     </form>
 </div>

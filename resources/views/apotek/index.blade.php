@@ -50,6 +50,7 @@
                             @forelse ($reseps as $index => $resep)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
+<<<<<<< HEAD
                                 <td><strong>{{ $resep->no_resep }}</strong></td>
                                 <td>{{ $resep->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
@@ -81,6 +82,13 @@
                                         <span class="badge bg-success">Lunas</span>
                                     @endif
                                 </td>
+=======
+                                <td>{{ $resep->no_resep }}</td>
+                                <td>{{ $resep->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $resep->pemeriksaan->nama ?? '-' }}</td>
+                                <td>Rp {{ number_format($resep->total_biaya, 0, ',', '.') }}</td>
+                                <td><span class="badge {{ $resep->status === 'Lunas' ? 'bg-success' : 'bg-warning text-dark' }}">{{ $resep->status }}</span></td>
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
                                 <td class="text-center">
                                     @if ($resep->status === 'Pending')
                                         <form action="{{ route('apotek.proses-resep', $resep->id) }}" method="POST" style="display: inline;">
@@ -100,9 +108,13 @@
                             </tr>
                             @empty
                             <tr>
+<<<<<<< HEAD
                                 <td colspan="8" class="text-center text-muted py-4">
                                     <i class="bi bi-inbox"></i> Belum ada resep untuk diproses
                                 </td>
+=======
+                                <td colspan="7" class="text-center text-muted py-4">Belum ada resep yang disimpan</td>
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
                             </tr>
                             @endforelse
                         </tbody>

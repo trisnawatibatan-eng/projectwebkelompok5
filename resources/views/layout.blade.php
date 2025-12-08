@@ -237,9 +237,19 @@
         .sidebar a[data-bs-toggle="collapse"]:not(.collapsed) .bi-chevron-down {
             transform: rotate(180deg); /* Koreksi rotasi ke 180 derajat */
         }
+<<<<<<< HEAD
         /* Style lama yang tidak diperlukan lagi atau diganti: */
         /* .sidebar .nav-link.justify-content-between.collapsed .bi-chevron-down {
             transform: rotate(0deg);
+=======
+        
+        /* Isi Halaman Wrapper: Menghilangkan padding top bawaan */
+        .page-content-wrapper {
+            padding: 30px; 
+            padding-top: 0;
+            max-width: 100%;
+            margin: 0;
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
         }
         .sidebar .nav-link.justify-content-between:not(.collapsed) .bi-chevron-down {
             transform: rotate(-90deg);
@@ -293,6 +303,72 @@
             
             {{-- AKSES DOKTER/PERAWAT & ADMIN (KODE SUDAH DIKOREKSI) --}}
             @if (in_array($userRole, ['admin', 'dokter']))
+<<<<<<< HEAD
+=======
+            <a href="{{ route('poliklinik') }}" 
+                class="nav-link d-flex align-items-center {{ request()->routeIs('poliklinik') ? 'active' : '' }}">
+                <i class="bi bi-hospital-fill"></i>
+                <span class="ms-3">Poliklinik</span>
+            </a>
+            {{-- Daftar Kunjungan (lihat riwayat pemeriksaan) --}}
+            <a href="{{ route('kunjungan.index') }}"
+                class="nav-link d-flex align-items-center {{ request()->routeIs('kunjungan.index') ? 'active' : '' }}">
+                <i class="bi bi-card-list"></i>
+                <span class="ms-3">Kunjungan</span>
+            </a>
+            @endif
+
+            {{-- DAFTAR KUNJUNGAN (Antrian) --}}
+            @if (in_array($userRole, ['admin', 'pendaftaran', 'dokter']))
+            <a href="{{ route('kunjungan.index') }}" 
+                class="nav-link d-flex align-items-center {{ request()->routeIs('kunjungan.index') ? 'active' : '' }}">
+                <i class="bi bi-list-check"></i>
+                <span class="ms-3">Daftar Kunjungan</span>
+            </a>
+            @endif
+            
+            {{-- AKSES KASIR & ADMIN --}}
+            @if (in_array($userRole, ['admin', 'kasir']))
+            <a href="{{ route('kasir.index') }}" 
+                class="nav-link d-flex align-items-center {{ request()->routeIs('kasir.index') ? 'active' : '' }}">
+                <i class="bi bi-cash-stack"></i> 
+                <span class="ms-3">Kasir</span>
+            </a>
+            @endif
+            
+            {{-- AKSES APOTEK & ADMIN --}}
+            @if (in_array($userRole, ['admin', 'apotek']))
+            <a href="{{ route('apotek.index') }}" 
+                class="nav-link d-flex align-items-center {{ request()->routeIs('apotek.index') ? 'active' : '' }}">
+                <i class="bi bi-bag-plus-fill"></i> 
+                <span class="ms-3">Apotek</span>
+            </a>
+            @endif
+
+            <hr style="border-color: rgba(255,255,255,0.2); margin: 20px 15px;">
+
+            <a href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                class="nav-link d-flex align-items-center text-white logout-btn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span class="ms-3">Logout</span>
+            </a>
+
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                @csrf
+            </form>
+        </nav>
+    </div>
+
+    <div id="content" class="content">
+        
+        <div id="content-header" class="content-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                {{-- Tombol Toggle Sidebar --}}
+                <button class="btn btn-toggle-custom me-3" id="sidebar-toggle" style="height: 35px; width: 35px; padding: 0;">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
                 
                 {{-- MENU UTAMA POLIKLINIK (Pemicu Dropdown) --}}
                 <a href="#poliSubmenu" 

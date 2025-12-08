@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 // Jika Anda menggunakan Model Pasien, pastikan di-import di sini
 use App\Models\Pasien;
 use App\Models\Pemeriksaan;
+<<<<<<< HEAD
 use App\Models\Kunjungan;
 use App\Models\Resep;
+=======
+>>>>>>> f868db48cec9d34adf8065fb4d9df4824cbf45e4
 
 class PoliklinikController extends Controller
 {
